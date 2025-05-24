@@ -43,9 +43,7 @@ const getSampleProducts = (adminUserId) => [
     ratings: { average: 4.8, count: 24 },
     tags: ["organic", "fresh", "local", "healthy"],
     seller: adminUserId,
-    createdBy: adminUserId,    careInstructions: "Store in cool, dry place. Refrigerate for longer freshness.",
-    weight: 500,
-    seo: {
+    createdBy: adminUserId,    careInstructions: "Store in cool, dry place. Refrigerate for longer freshness.",    seo: {
       metaTitle: "Organic Tomatoes - Fresh & Healthy",
       metaDescription: "Fresh organic cherry tomatoes grown without pesticides",
       slug: "organic-tomatoes"
@@ -74,7 +72,12 @@ const getSampleProducts = (adminUserId) => [
     careInstructions: "Keep in bright, indirect light. Water when soil feels dry.",
     sunlightRequirement: "partial-sun",
     wateringFrequency: "alternate-days",
-    weight: 50
+    weight: 50,
+    seo: {
+      metaTitle: "Fresh Basil - Aromatic Herbs",
+      metaDescription: "Aromatic fresh basil leaves perfect for cooking",
+      slug: "fresh-basil"
+    }
   },
   {
     name: "Organic Spinach",
@@ -93,10 +96,14 @@ const getSampleProducts = (adminUserId) => [
     isOrganic: true,
     isFeatured: true,
     ratings: { average: 4.7, count: 32 },
-    tags: ["organic", "healthy", "iron-rich", "salad"],
-    seller: adminUserId,
+    tags: ["organic", "healthy", "iron-rich", "salad"],    seller: adminUserId,
     createdBy: adminUserId,
-    weight: 200
+    weight: 200,
+    seo: {
+      metaTitle: "Organic Spinach - Iron Rich Greens",
+      metaDescription: "Fresh organic baby spinach leaves rich in iron and vitamins",
+      slug: "organic-spinach"
+    }
   },
   {
     name: "Garden Tool Set",
@@ -118,7 +125,12 @@ const getSampleProducts = (adminUserId) => [
     tags: ["tools", "garden", "complete-set", "durable"],
     seller: adminUserId,
     createdBy: adminUserId,
-    weight: 1200
+    weight: 1200,
+    seo: {
+      metaTitle: "Garden Tool Set - Complete Gardening Kit",
+      metaDescription: "Complete 5-piece garden tool set with ergonomic handles",
+      slug: "garden-tool-set"
+    }
   },
   {
     name: "Strawberry Plants",
@@ -141,10 +153,14 @@ const getSampleProducts = (adminUserId) => [
     seller: adminUserId,
     createdBy: adminUserId,
     careInstructions: "Plant in well-draining soil. Water regularly during growing season.",
-    sunlightRequirement: "full-sun",
-    wateringFrequency: "daily",
+    sunlightRequirement: "full-sun",    wateringFrequency: "daily",
     plantingSeasons: ["spring", "summer"],
-    weight: 300
+    weight: 300,
+    seo: {
+      metaTitle: "Strawberry Plants - Fresh Fruit Garden",
+      metaDescription: "Healthy strawberry plants ready for planting",
+      slug: "strawberry-plants"
+    }
   },
   {
     name: "Organic Fertilizer Mix",
@@ -166,7 +182,12 @@ const getSampleProducts = (adminUserId) => [
     tags: ["organic", "fertilizer", "eco-friendly", "nutrients"],
     seller: adminUserId,
     createdBy: adminUserId,
-    weight: 2000
+    weight: 2000,
+    seo: {
+      metaTitle: "Organic Fertilizer Mix - Premium Plant Food",
+      metaDescription: "Premium organic fertilizer blend perfect for all plants",
+      slug: "organic-fertilizer-mix"
+    }
   }
 ];
 

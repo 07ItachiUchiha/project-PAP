@@ -1,5 +1,25 @@
 import api from './index';
 
+// Create payment intent
+export const createPaymentIntent = async (data) => {
+  try {
+    const response = await api.post('/payment/create-intent', data);
+    return response.data;
+  } catch (error) {
+    throw error.response?.data || error.message;
+  }
+};
+
+// Confirm payment
+export const confirmPayment = async (data) => {
+  try {
+    const response = await api.post('/payment/confirm', data);
+    return response.data;
+  } catch (error) {
+    throw error.response?.data || error.message;
+  }
+};
+
 export const paymentAPI = {
   // Create payment intent
   createPaymentIntent: async (amount, currency = 'inr') => {

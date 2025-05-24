@@ -1,6 +1,9 @@
 const Order = require('../models/Order');
 const Cart = require('../models/Cart');
 const Product = require('../models/Product');
+const User = require('../models/User');
+const { emailService } = require('../utils/emailService');
+const { invalidateCache } = require('../utils/cache');
 
 // @desc    Create new order
 // @route   POST /api/orders
@@ -56,9 +59,7 @@ const createOrder = async (req, res, next) => {
         product.inStock = false;
       }
       await product.save();
-    }
-
-    const order = await Order.create({
+    }    const order = await Order.create({
       user: req.user.id,
       orderItems: validatedItems,
       shippingAddress,
@@ -77,6 +78,19 @@ const createOrder = async (req, res, next) => {
       { user: req.user.id },
       { items: [], discount: 0 }
     );
+
+    // Send order confirmation email
+    try {
+      const user = await User.findById(req.user.id);
+      await emailService.sendOrderConfirmation(order, user);
+    } catch (emailError) {
+      console.error('Failed to send order confirmation email:', emailError);
+      // Don't fail the order creation if email fails
+    }
+
+    // Invalidate relevant caches
+    await invalidateCache.products();
+    await invalidateCache.user(req.user.id);
 
     res.status(201).json({
       success: true,
@@ -220,9 +234,9 @@ const getOrders = async (req, res, next) => {
 // @access  Private/Admin
 const updateOrderStatus = async (req, res, next) => {
   try {
-    const { orderStatus } = req.body;
+    const { orderStatus, trackingNumber } = req.body;
 
-    const order = await Order.findById(req.params.id);
+    const order = await Order.findById(req.params.id).populate('user', 'name email');
 
     if (!order) {
       return res.status(404).json({
@@ -231,13 +245,31 @@ const updateOrderStatus = async (req, res, next) => {
       });
     }
 
+    const previousStatus = order.orderStatus;
     order.orderStatus = orderStatus;
 
     if (orderStatus === 'delivered') {
       order.deliveredAt = Date.now();
     }
 
+    if (trackingNumber) {
+      order.trackingNumber = trackingNumber;
+    }
+
     await order.save();
+
+    // Send status update email if status changed
+    if (previousStatus !== orderStatus) {
+      try {
+        await emailService.sendOrderStatusUpdate(order, order.user, orderStatus);
+      } catch (emailError) {
+        console.error('Failed to send order status update email:', emailError);
+        // Don't fail the status update if email fails
+      }
+    }
+
+    // Invalidate user-specific caches
+    await invalidateCache.user(order.user._id);
 
     res.status(200).json({
       success: true,

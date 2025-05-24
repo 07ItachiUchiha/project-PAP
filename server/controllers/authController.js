@@ -2,6 +2,7 @@ const crypto = require('crypto');
 const User = require('../models/User');
 const sendTokenResponse = require('../utils/sendTokenResponse');
 const sendEmail = require('../utils/sendEmail');
+const { emailService } = require('../utils/emailService');
 
 // @desc    Register user
 // @route   POST /api/auth/register
@@ -17,15 +18,20 @@ const register = async (req, res, next) => {
         success: false,
         message: 'User already exists with this email'
       });
-    }
-
-    // Create user
+    }    // Create user
     const user = await User.create({
       name,
       email,
       password,
       role: role || 'user'
     });
+
+    // Send welcome email (don't fail registration if email fails)
+    try {
+      await emailService.sendWelcomeEmail(user);
+    } catch (emailError) {
+      console.error('Failed to send welcome email:', emailError);
+    }
 
     sendTokenResponse(user, 201, res);
   } catch (error) {

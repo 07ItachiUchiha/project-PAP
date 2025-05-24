@@ -1,15 +1,242 @@
-import React from 'react';
-import { Link } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { useSelector, useDispatch } from 'react-redux';
+import { useNavigate } from 'react-router-dom';
+import { toast } from 'react-toastify';
+import StripePayment from '../components/payment/StripePayment';
+import LoadingSpinner from '../components/common/LoadingSpinner';
+import { createOrder } from '../api/orderAPI';
+import { clearCart } from '../store/slices/cartSlice';
 
 const Checkout = () => {
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const { items, total } = useSelector(state => state.cart);
+  const { user } = useSelector(state => state.auth);
+  const [currentOrder, setCurrentOrder] = useState(null);
+  const [loading, setLoading] = useState(false);
+
+  const [shippingInfo, setShippingInfo] = useState({
+    firstName: '',
+    lastName: '',
+    email: user?.email || '',
+    phone: '',
+    address: '',
+    city: '',
+    state: '',
+    zipCode: '',
+    country: 'US'
+  });
+
+  useEffect(() => {
+    if (!user) {
+      toast.error('Please login to continue');
+      navigate('/auth/login');
+      return;
+    }
+
+    if (!items || items.length === 0) {
+      toast.error('Your cart is empty');
+      navigate('/cart');
+      return;
+    }
+  }, [user, items, navigate]);
+
+  const handleShippingChange = (e) => {
+    const { name, value } = e.target;
+    setShippingInfo(prev => ({
+      ...prev,
+      [name]: value
+    }));
+  };
+
+  const handleCreateOrder = async () => {
+    setLoading(true);
+    try {
+      const orderData = {
+        items: items.map(item => ({
+          product: item.product._id,
+          quantity: item.quantity,
+          price: item.product.price
+        })),
+        shippingAddress: shippingInfo,
+        totalAmount: total
+      };
+
+      const response = await createOrder(orderData);
+      setCurrentOrder(response.data);
+      toast.success('Order created successfully! Please complete payment.');
+    } catch (error) {
+      console.error('Error creating order:', error);
+      toast.error(error.message || 'Failed to create order');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handlePaymentSuccess = () => {
+    toast.success('Payment completed successfully!');
+    dispatch(clearCart());
+    navigate('/orders');
+  };
+
+  const handlePaymentError = (error) => {
+    console.error('Payment error:', error);
+    toast.error(error || 'Payment failed');
+  };
+
+  if (!user || !items || items.length === 0) {
+    return <LoadingSpinner />;
+  }
+
   return (
-    <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-      <div className="text-center">
-        <h1 className="text-3xl font-bold mb-4">Checkout</h1>
-        <p className="text-gray-600 mb-6">This page is under construction</p>
-        <Link to="/cart" className="text-primary-600 hover:text-primary-700">
-          ← Back to Cart
-        </Link>
+    <div className="min-h-screen bg-gray-50 py-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="bg-white rounded-lg shadow-sm">
+          <div className="px-6 py-4 border-b border-gray-200">
+            <h1 className="text-2xl font-semibold text-gray-900">Checkout</h1>
+          </div>
+
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 p-6">
+            {/* Order Summary */}
+            <div className="space-y-6">
+              <div>
+                <h2 className="text-lg font-medium text-gray-900 mb-4">Order Summary</h2>
+                <div className="space-y-4">
+                  {items.map((item) => (
+                    <div key={item.product._id} className="flex items-center space-x-4">
+                      <img
+                        src={item.product.images?.[0]?.url || '/placeholder.jpg'}
+                        alt={item.product.name}
+                        className="w-16 h-16 object-cover rounded-md"
+                      />
+                      <div className="flex-1">
+                        <h3 className="text-sm font-medium text-gray-900">{item.product.name}</h3>
+                        <p className="text-sm text-gray-500">Quantity: {item.quantity}</p>
+                      </div>
+                      <span className="text-sm font-medium text-gray-900">
+                        ${(item.product.price * item.quantity).toFixed(2)}
+                      </span>
+                    </div>
+                  ))}
+                  <div className="border-t pt-4">
+                    <div className="flex justify-between text-lg font-semibold">
+                      <span>Total: </span>
+                      <span>${total.toFixed(2)}</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Shipping Information */}
+              <div>
+                <h2 className="text-lg font-medium text-gray-900 mb-4">Shipping Information</h2>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <input
+                    type="text"
+                    name="firstName"
+                    placeholder="First Name"
+                    value={shippingInfo.firstName}
+                    onChange={handleShippingChange}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
+                    required
+                  />
+                  <input
+                    type="text"
+                    name="lastName"
+                    placeholder="Last Name"
+                    value={shippingInfo.lastName}
+                    onChange={handleShippingChange}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
+                    required
+                  />
+                  <input
+                    type="email"
+                    name="email"
+                    placeholder="Email"
+                    value={shippingInfo.email}
+                    onChange={handleShippingChange}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
+                    required
+                  />
+                  <input
+                    type="tel"
+                    name="phone"
+                    placeholder="Phone Number"
+                    value={shippingInfo.phone}
+                    onChange={handleShippingChange}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
+                    required
+                  />
+                  <input
+                    type="text"
+                    name="address"
+                    placeholder="Street Address"
+                    value={shippingInfo.address}
+                    onChange={handleShippingChange}
+                    className="md:col-span-2 w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
+                    required
+                  />
+                  <input
+                    type="text"
+                    name="city"
+                    placeholder="City"
+                    value={shippingInfo.city}
+                    onChange={handleShippingChange}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
+                    required
+                  />
+                  <input
+                    type="text"
+                    name="state"
+                    placeholder="State"
+                    value={shippingInfo.state}
+                    onChange={handleShippingChange}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
+                    required
+                  />
+                  <input
+                    type="text"
+                    name="zipCode"
+                    placeholder="ZIP Code"
+                    value={shippingInfo.zipCode}
+                    onChange={handleShippingChange}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
+                    required
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* Payment Section */}
+            <div className="space-y-6">
+              {!currentOrder ? (
+                <div>
+                  <h2 className="text-lg font-medium text-gray-900 mb-4">Review & Create Order</h2>
+                  <p className="text-sm text-gray-600 mb-4">
+                    Please review your order and shipping information, then click "Create Order" to proceed to payment.
+                  </p>
+                  <button
+                    onClick={handleCreateOrder}
+                    disabled={loading || !shippingInfo.firstName || !shippingInfo.lastName || !shippingInfo.address}
+                    className="w-full py-3 px-4 bg-green-600 text-white font-medium rounded-md hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    {loading ? 'Creating Order...' : 'Create Order'}
+                  </button>
+                </div>
+              ) : (
+                <div>
+                  <h2 className="text-lg font-medium text-gray-900 mb-4">Payment</h2>
+                  <StripePayment
+                    orderId={currentOrder._id}
+                    amount={total}
+                    onSuccess={handlePaymentSuccess}
+                    onError={handlePaymentError}
+                  />
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );

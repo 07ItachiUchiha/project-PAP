@@ -1,4 +1,5 @@
 const Product = require('../models/Product');
+const { invalidateCache } = require('../utils/cache');
 
 // @desc    Get all products
 // @route   GET /api/products

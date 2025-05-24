@@ -11,6 +11,7 @@ import {
 
 import ProductCard from '../components/product/ProductCard';
 import ProductFilters from '../components/product/ProductFilters';
+import SearchBar from '../components/product/SearchBar';
 import LoadingSpinner from '../components/common/LoadingSpinner';
 import { fetchProducts } from '../store/slices/productSlice';
 
@@ -18,30 +19,36 @@ const Shop = () => {
   const dispatch = useDispatch();
   const [searchParams, setSearchParams] = useSearchParams();
   const { products, loading, error, totalPages, currentPage } = useSelector(state => state.products);
+  const [searchResults, setSearchResults] = useState(null);
   
   const [filters, setFilters] = useState({
     category: searchParams.get('category') || '',
     priceRange: [0, 1000],
-    search: '',
+    search: searchParams.get('q') || '',
     sortBy: 'newest'
   });
   const [showFilters, setShowFilters] = useState(false);
 
   useEffect(() => {
-    const params = {
-      page: searchParams.get('page') || 1,
-      category: filters.category,
-      minPrice: filters.priceRange[0],
-      maxPrice: filters.priceRange[1],
-      search: filters.search,
-      sortBy: filters.sortBy
-    };
-    
-    dispatch(fetchProducts(params));
-  }, [dispatch, filters, searchParams]);
+    if (!searchResults) {
+      const params = {
+        page: searchParams.get('page') || 1,
+        category: filters.category,
+        minPrice: filters.priceRange[0],
+        maxPrice: filters.priceRange[1],
+        search: filters.search,
+        sortBy: filters.sortBy
+      };
+      
+      dispatch(fetchProducts(params));
+    }
+  }, [dispatch, filters, searchParams, searchResults]);
+
+  // Remove unused function
 
   const handleFilterChange = (newFilters) => {
     setFilters(prev => ({ ...prev, ...newFilters }));
+    setSearchResults(null); // Clear search results when filters change
     // Reset to first page when filters change
     searchParams.set('page', '1');
     setSearchParams(searchParams);

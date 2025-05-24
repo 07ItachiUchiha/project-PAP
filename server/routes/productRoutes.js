@@ -10,17 +10,36 @@ const {
 } = require('../controllers/productController');
 
 const { protect, authorize } = require('../middlewares/auth');
+const { validate, validationSets } = require('../utils/validation');
+const { cacheConfigs } = require('../utils/cache');
 
 const router = express.Router();
 
-router.get('/featured', getFeaturedProducts);
-router.get('/category/:category', getProductsByCategory);
+// Public routes with caching
+router.get('/featured', cacheConfigs.products, getFeaturedProducts);
+router.get('/category/:category', cacheConfigs.categories, getProductsByCategory);
+router.get('/', cacheConfigs.products, getProducts);
+router.get('/:id', cacheConfigs.medium, getProduct);
 
-router.get('/', getProducts);
-router.post('/', protect, authorize('admin', 'seller'), createProduct);
+// Protected admin routes with validation
+router.post('/', 
+  protect, 
+  authorize('admin', 'seller'), 
+  validate(validationSets.createProduct),
+  createProduct
+);
 
-router.get('/:id', getProduct);
-router.put('/:id', protect, authorize('admin', 'seller'), updateProduct);
-router.delete('/:id', protect, authorize('admin', 'seller'), deleteProduct);
+router.put('/:id', 
+  protect, 
+  authorize('admin', 'seller'), 
+  validate(validationSets.updateProduct),
+  updateProduct
+);
+
+router.delete('/:id', 
+  protect, 
+  authorize('admin', 'seller'), 
+  deleteProduct
+);
 
 module.exports = router;

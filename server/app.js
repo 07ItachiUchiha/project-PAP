@@ -14,32 +14,41 @@ const orderRoutes = require('./routes/orderRoutes');
 const adminRoutes = require('./routes/adminRoutes');
 const uploadRoutes = require('./routes/uploadRoutes');
 const paymentRoutes = require('./routes/paymentRoutes');
+const searchRoutes = require('./routes/searchRoutes');
 
 // Import middleware
 const errorHandler = require('./middlewares/errorHandler');
+const { securityHeaders, rateLimits, sanitizeData, validateInput, corsOptions, securityErrorHandler } = require('./middleware/security');
+
+// Import utilities
+const { connectRedis, cacheConfigs } = require('./utils/cache');
 
 const app = express();
 
-// Security middleware
-app.use(helmet());
-
-// Rate limiting
-const limiter = rateLimit({
-  windowMs: 10 * 60 * 1000, // 10 minutes
-  max: process.env.RATE_LIMIT_REQUESTS || 100, // limit each IP to 100 requests per windowMs
-  message: 'Too many requests from this IP, please try again later.',
-  standardHeaders: true,
-  legacyHeaders: false,
+// Initialize Redis connection
+connectRedis().catch(err => {
+  console.error('Failed to connect to Redis:', err);
 });
-app.use('/api/', limiter);
 
-// CORS configuration
-app.use(cors({
-  origin: process.env.CLIENT_URL || 'http://localhost:5173',
-  credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
-  allowedHeaders: ['Content-Type', 'Authorization'],
-}));
+// Enhanced security middleware
+app.use(securityHeaders);
+
+// Data sanitization middleware
+app.use(sanitizeData);
+
+// Input validation middleware
+app.use(validateInput);
+
+// Rate limiting with different configs for different endpoints
+app.use('/api/auth/login', rateLimits.auth);
+app.use('/api/auth/forgot-password', rateLimits.passwordReset);
+app.use('/api/upload', rateLimits.upload);
+app.use('/api/search', rateLimits.search);
+app.use('/api/orders', rateLimits.orders);
+app.use('/api/', rateLimits.general);
+
+// Enhanced CORS configuration
+app.use(cors(corsOptions));
 
 // Body parsing middleware
 app.use(express.json({ limit: '10mb' }));
@@ -69,7 +78,7 @@ app.get('/api/health', (req, res) => {
 // Special route for Stripe webhook - needs raw body
 app.use('/api/payment/webhook', express.raw({ type: 'application/json' }));
 
-// API Routes
+// API Routes with caching where appropriate
 app.use('/api/auth', authRoutes);
 app.use('/api/products', productRoutes);
 app.use('/api/cart', cartRoutes);
@@ -77,6 +86,7 @@ app.use('/api/orders', orderRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/upload', uploadRoutes);
 app.use('/api/payment', paymentRoutes);
+app.use('/api/search', searchRoutes);
 
 // Handle undefined routes
 app.all('*', (req, res, next) => {
@@ -84,6 +94,9 @@ app.all('*', (req, res, next) => {
   error.statusCode = 404;
   next(error);
 });
+
+// Security error handling middleware
+app.use(securityErrorHandler);
 
 // Error handling middleware (must be last)
 app.use(errorHandler);
