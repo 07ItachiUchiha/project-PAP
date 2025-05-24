@@ -149,7 +149,7 @@ const Shop = () => {
             {/* Sort Options */}
             <div className="flex items-center justify-between mb-6">
               <p className="text-gray-600">
-                {products?.totalCount || 0} products found
+                {(products && products.length) || 0} products found
               </p>
               
               <select
@@ -171,9 +171,8 @@ const Shop = () => {
                 <p className="text-red-600">{error}</p>
               </div>
             ) : (
-              <>
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {products?.data?.map((product) => (
+              <>                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {products && products.length > 0 ? products.map((product) => (
                     <motion.div
                       key={product._id}
                       initial={{ opacity: 0, y: 20 }}
@@ -182,7 +181,9 @@ const Shop = () => {
                     >
                       <ProductCard product={product} />
                     </motion.div>
-                  ))}
+                  )) : (
+                    <p className="col-span-3 text-center py-8 text-gray-500">No products found matching your criteria</p>
+                  )}
                 </div>
 
                 {/* Pagination */}
