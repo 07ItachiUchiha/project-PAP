@@ -12,6 +12,8 @@ const productRoutes = require('./routes/productRoutes');
 const cartRoutes = require('./routes/cartRoutes');
 const orderRoutes = require('./routes/orderRoutes');
 const adminRoutes = require('./routes/adminRoutes');
+const uploadRoutes = require('./routes/uploadRoutes');
+const paymentRoutes = require('./routes/paymentRoutes');
 
 // Import middleware
 const errorHandler = require('./middlewares/errorHandler');
@@ -64,12 +66,17 @@ app.get('/api/health', (req, res) => {
   });
 });
 
+// Special route for Stripe webhook - needs raw body
+app.use('/api/payment/webhook', express.raw({ type: 'application/json' }));
+
 // API Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/products', productRoutes);
 app.use('/api/cart', cartRoutes);
 app.use('/api/orders', orderRoutes);
 app.use('/api/admin', adminRoutes);
+app.use('/api/upload', uploadRoutes);
+app.use('/api/payment', paymentRoutes);
 
 // Handle undefined routes
 app.all('*', (req, res, next) => {
