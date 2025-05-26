@@ -1,10 +1,10 @@
 const fs = require('fs');
 const path = require('path');
-const { uploadToCloudinary, deleteFromCloudinary } = require('../utils/fileUpload');
+const { deleteLocalFile, getFileUrl } = require('../utils/fileUpload');
 
 /**
  * @desc    Upload product images
- * @route   POST /api/upload/products
+ * @route   POST /api/upload/product-images
  * @access  Private/Admin
  */
 const uploadProductImages = async (req, res, next) => {
@@ -16,29 +16,24 @@ const uploadProductImages = async (req, res, next) => {
       });
     }
 
-    const uploadPromises = req.files.map(async (file) => {
-      // Upload to Cloudinary
-      const result = await uploadToCloudinary(file.path, 'products');
-      
-      // Delete local file after upload
-      fs.unlinkSync(file.path);
-
+    // Process uploaded files
+    const uploadedImages = req.files.map((file) => {
       return {
-        public_id: result.public_id,
-        url: result.secure_url
+        filename: file.filename,
+        url: `${req.protocol}://${req.get('host')}${getFileUrl(file.filename)}`,
+        originalName: file.originalname,
+        size: file.size
       };
     });
 
-    // Wait for all uploads to complete
-    const uploadedImages = await Promise.all(uploadPromises);
-
     res.status(200).json({
       success: true,
+      message: `${uploadedImages.length} image(s) uploaded successfully`,
       count: uploadedImages.length,
       images: uploadedImages
     });
   } catch (error) {
-    // Clean up any local files if error occurs
+    // Clean up any uploaded files if error occurs
     if (req.files) {
       req.files.forEach(file => {
         if (fs.existsSync(file.path)) {
@@ -51,25 +46,25 @@ const uploadProductImages = async (req, res, next) => {
 };
 
 /**
- * @desc    Delete product image from Cloudinary
- * @route   DELETE /api/upload/products/:public_id
+ * @desc    Delete product image from local storage
+ * @route   DELETE /api/upload/product-image
  * @access  Private/Admin
  */
 const deleteProductImage = async (req, res, next) => {
   try {
-    const { public_id } = req.params;
+    const { filename } = req.body;
     
-    if (!public_id) {
+    if (!filename) {
       return res.status(400).json({
         success: false,
-        message: 'No image public_id provided'
+        message: 'No image filename provided'
       });
     }
 
-    // Delete from cloudinary
-    const result = await deleteFromCloudinary(public_id);
+    // Delete from local storage
+    const result = await deleteLocalFile(filename);
 
-    if (result.result !== 'ok') {
+    if (!result.success) {
       return res.status(404).json({
         success: false,
         message: 'Image not found or already deleted'

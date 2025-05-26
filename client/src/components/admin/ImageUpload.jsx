@@ -51,11 +51,10 @@ const ImageUpload = ({ images = [], onImagesChange, maxImages = 5 }) => {
   const handleFileInputChange = (e) => {
     handleFileSelect(e.target.files);
   };
-
   const handleRemoveImage = async (index, imageData) => {
     try {
-      if (imageData.public_id) {
-        await deleteProductImage(imageData.public_id);
+      if (imageData.filename) {
+        await deleteProductImage(imageData.filename);
       }
       const newImages = images.filter((_, i) => i !== index);
       onImagesChange(newImages);

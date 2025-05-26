@@ -65,15 +65,20 @@ const productSchema = new mongoose.Schema({
   tags: [{
     type: String,
     trim: true
-  }],
-  images: [{
-    public_id: {
+  }],  images: [{
+    filename: {
       type: String,
       required: true
     },
     url: {
       type: String,
       required: true
+    },
+    originalName: {
+      type: String
+    },
+    size: {
+      type: Number
     }
   }],
   stock: {

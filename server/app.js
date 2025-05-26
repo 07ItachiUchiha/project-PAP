@@ -1,4 +1,5 @@
 const express = require('express');
+const path = require('path');
 const cors = require('cors');
 const morgan = require('morgan');
 const cookieParser = require('cookie-parser');
@@ -59,6 +60,9 @@ app.use(cookieParser());
 
 // Compression middleware
 app.use(compression());
+
+// Serve static files from uploads directory
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 // Logging middleware
 if (process.env.NODE_ENV === 'development') {

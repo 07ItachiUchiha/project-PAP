@@ -6,7 +6,7 @@ export const uploadProductImage = async (file) => {
     const formData = new FormData();
     formData.append('image', file);
 
-    const response = await api.post('/upload/product-image', formData, {
+    const response = await api.post('/upload/product-images', formData, {
       headers: {
         'Content-Type': 'multipart/form-data',
       },
@@ -37,10 +37,10 @@ export const uploadProductImages = async (files) => {
 };
 
 // Delete product image
-export const deleteProductImage = async (publicId) => {
+export const deleteProductImage = async (filename) => {
   try {
     const response = await api.delete('/upload/product-image', {
-      data: { public_id: publicId }
+      data: { filename }
     });
     return response.data;
   } catch (error) {

@@ -1,24 +1,35 @@
 const path = require('path');
-const cloudinary = require('../config/cloudinary');
+const fs = require('fs');
 const multer = require('multer');
 
-// Configure multer for temporary file storage
+// Create uploads directory if it doesn't exist
+const uploadsDir = path.join(__dirname, '../uploads/products');
+if (!fs.existsSync(uploadsDir)) {
+  fs.mkdirSync(uploadsDir, { recursive: true });
+}
+
+// Configure multer for local file storage
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    cb(null, path.join(__dirname, '../temp')); // Temporary storage before uploading to Cloudinary
+    cb(null, uploadsDir);
   },
   filename: (req, file, cb) => {
-    cb(null, `${Date.now()}-${file.originalname}`);
+    // Generate unique filename with timestamp and random string
+    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+    const extension = path.extname(file.originalname);
+    const filename = `product-${uniqueSuffix}${extension}`;
+    cb(null, filename);
   }
 });
 
 // Validate file type
 const fileFilter = (req, file, cb) => {
   // Accept image files only
-  if (file.mimetype.startsWith('image/')) {
+  const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
+  if (allowedTypes.includes(file.mimetype)) {
     cb(null, true);
   } else {
-    cb(new Error('Only image files are allowed!'), false);
+    cb(new Error('Only JPEG, PNG, and WebP image files are allowed!'), false);
   }
 };
 
@@ -31,36 +42,29 @@ const upload = multer({
   }
 });
 
-// Upload file to Cloudinary
-const uploadToCloudinary = async (filePath, folder = 'products') => {
-  return new Promise((resolve, reject) => {
-    cloudinary.uploader.upload(
-      filePath,
-      {
-        folder: `plantpap/${folder}`,
-        use_filename: true,
-        unique_filename: true,
-      },
-      (err, result) => {
-        if (err) return reject(err);
-        return resolve(result);
-      }
-    );
-  });
+// Delete local file
+const deleteLocalFile = async (filename) => {
+  try {
+    const filePath = path.join(uploadsDir, filename);
+    if (fs.existsSync(filePath)) {
+      fs.unlinkSync(filePath);
+      return { success: true, message: 'File deleted successfully' };
+    } else {
+      return { success: false, message: 'File not found' };
+    }
+  } catch (error) {
+    throw new Error(`Failed to delete file: ${error.message}`);
+  }
 };
 
-// Delete file from Cloudinary
-const deleteFromCloudinary = async (publicId) => {
-  return new Promise((resolve, reject) => {
-    cloudinary.uploader.destroy(publicId, (err, result) => {
-      if (err) return reject(err);
-      return resolve(result);
-    });
-  });
+// Get file URL for serving
+const getFileUrl = (filename) => {
+  return `/uploads/products/${filename}`;
 };
 
 module.exports = {
   upload,
-  uploadToCloudinary,
-  deleteFromCloudinary
+  deleteLocalFile,
+  getFileUrl,
+  uploadsDir
 };
