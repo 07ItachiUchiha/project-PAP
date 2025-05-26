@@ -4,7 +4,7 @@ import api from './index';
 export const uploadProductImage = async (file) => {
   try {
     const formData = new FormData();
-    formData.append('image', file);
+    formData.append('images', file); // Changed from 'image' to 'images'
 
     const response = await api.post('/upload/product-images', formData, {
       headers: {

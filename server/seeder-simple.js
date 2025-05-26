@@ -26,11 +26,12 @@ const getSampleProducts = (adminUserId) => [
     price: 4.99,
     originalPrice: 6.99,
     category: "organic-vegetables",
-    type: "organic-vegetables",
-    images: [
+    type: "organic-vegetables",    images: [
       {
-        public_id: "tomatoes_1",
-        url: "https://images.unsplash.com/photo-1546470427-e26264be0b5d?w=400"
+        filename: "tomatoes_1.jpg",
+        url: "https://images.unsplash.com/photo-1546470427-e26264be0b5d?w=400",
+        originalName: "tomatoes.jpg",
+        size: 12345
       }
     ],
     stock: 50,
@@ -49,11 +50,12 @@ const getSampleProducts = (adminUserId) => [
     price: 24.99,
     originalPrice: 34.99,
     category: "tools",
-    type: "gardening-tools",
-    images: [
+    type: "gardening-tools",    images: [
       {
-        public_id: "tools_1",
-        url: "https://images.unsplash.com/photo-1416879595882-3373a0480b5b?w=400"
+        filename: "tools_1.jpg",
+        url: "https://images.unsplash.com/photo-1416879595882-3373a0480b5b?w=400",
+        originalName: "garden-tools.jpg",
+        size: 15432
       }
     ],
     stock: 15,
@@ -71,11 +73,12 @@ const getSampleProducts = (adminUserId) => [
     price: 2.99,
     originalPrice: 3.99,
     category: "plants",
-    type: "herbs",
-    images: [
+    type: "herbs",    images: [
       {
-        public_id: "basil_1",
-        url: "https://images.unsplash.com/photo-1618164435735-413d3b066c9a?w=400"
+        filename: "basil_1.jpg",
+        url: "https://images.unsplash.com/photo-1618164435735-413d3b066c9a?w=400",
+        originalName: "basil-plant.jpg",
+        size: 18765
       }
     ],
     stock: 30,
