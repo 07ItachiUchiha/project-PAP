@@ -172,12 +172,19 @@ const corsOptions = {
     const allowedOrigins = [
       process.env.CLIENT_URL || 'http://localhost:5173',
       'http://localhost:3000',
-      'http://localhost:5000'
+      'http://localhost:5000',
+      'http://127.0.0.1:5173',  // Added localhost equivalent
+      'http://127.0.0.1:3000'   // Added localhost equivalent
     ];
 
     // Allow requests with no origin (like mobile apps or curl requests)
     if (!origin) return callback(null, true);
 
+    // For development environments, allow all origins
+    if (process.env.NODE_ENV === 'development') {
+      return callback(null, true);
+    }
+    
     if (allowedOrigins.indexOf(origin) !== -1) {
       callback(null, true);
     } else {

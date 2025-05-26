@@ -52,8 +52,9 @@ export const createProduct = createAsyncThunk(
 
 export const updateProduct = createAsyncThunk(
   'admin/updateProduct',
-  async ({ productId, productData }, { rejectWithValue }) => {
+  async (payload, { rejectWithValue }) => {
     try {
+      const { productId, productData } = payload;
       const response = await adminAPI.updateProduct(productId, productData);
       return response.data;
     } catch (error) {

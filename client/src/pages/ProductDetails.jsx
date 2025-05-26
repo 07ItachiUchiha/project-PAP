@@ -9,7 +9,7 @@ import { StarIcon } from '@heroicons/react/24/solid';
 import { toast } from 'react-toastify';
 import { addToCart } from '../store/slices/cartSlice';
 import { addToWishlist, removeFromWishlist } from '../store/slices/wishlistSlice';
-import { productAPI } from '../api/productAPI';
+import { fetchProductById } from '../store/slices/productSlice';
 import LoadingSpinner from '../components/common/LoadingSpinner';
 
 const ProductDetails = () => {
@@ -26,21 +26,27 @@ const ProductDetails = () => {
   
   const { isAuthenticated } = useSelector(state => state.auth);
   const { items: wishlistItems } = useSelector(state => state.wishlist || { items: [] });
-    // Fetch product details
+  // Fetch product details
   useEffect(() => {
     const getProductDetails = async () => {
       try {
         setLoading(true);
-        const response = await productAPI.getProductById(id);
-        setProduct(response.data.product);
-        
-        // Check if product is in wishlist
-        if (wishlistItems && wishlistItems.some(item => item._id === id)) {
-          setInWishlist(true);
+        const resultAction = await dispatch(fetchProductById(id));
+        if (fetchProductById.fulfilled.match(resultAction)) {
+          setProduct(resultAction.payload.product);
+          
+          // Check if product is in wishlist
+          if (wishlistItems && wishlistItems.some(item => item._id === id)) {
+            setInWishlist(true);
+          }
+        } else {
+          const error = resultAction.error;
+          setError(error.message || 'Failed to load product details');
+          toast.error('Failed to load product details');
         }
       } catch (error) {
         console.error('Error fetching product:', error);
-        setError(error.response?.data?.message || 'Failed to load product details');
+        setError(error.message || 'Failed to load product details');
         toast.error('Failed to load product details');
       } finally {
         setLoading(false);
@@ -48,7 +54,7 @@ const ProductDetails = () => {
     };
     
     getProductDetails();
-  }, [id, wishlistItems]);
+  }, [id, wishlistItems, dispatch]);
   
   const handleQuantityChange = (e) => {
     const value = parseInt(e.target.value);
