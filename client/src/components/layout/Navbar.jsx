@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
+// eslint-disable-next-line no-unused-vars
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   ShoppingCart, 
@@ -34,14 +35,13 @@ const Navbar = () => {
       setSearchTerm('');
     }
   };
-
   const handleLogout = async () => {
     try {
       await dispatch(logoutUser()).unwrap();
       toast.success('Logged out successfully');
       navigate('/');
-    } catch (error) {
-      toast.error('Logout failed');
+    } catch (err) {
+      toast.error(`Logout failed: ${err.message || 'Unknown error'}`);
     }
     setUserMenuOpen(false);
   };
@@ -112,6 +112,13 @@ const Navbar = () => {
               )}
             </Link>
 
+            {/* Wishlist */}
+            {isAuthenticated && (
+              <Link to="/wishlist" className="relative p-2 text-gray-700 hover:text-primary-600">
+                <Heart className="h-6 w-6" />
+              </Link>
+            )}
+
             {/* User Menu */}
             {isAuthenticated ? (
               <div className="relative">
@@ -146,6 +153,14 @@ const Navbar = () => {
                       >
                         <Package className="h-4 w-4" />
                         <span>Orders</span>
+                      </Link>
+                      <Link
+                        to="/wishlist"
+                        className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center space-x-2"
+                        onClick={() => setUserMenuOpen(false)}
+                      >
+                        <Heart className="h-4 w-4" />
+                        <span>Wishlist</span>
                       </Link>
                       {(user?.role === 'admin' || user?.role === 'seller') && (
                         <Link
@@ -250,6 +265,18 @@ const Navbar = () => {
                   </span>
                 )}
               </Link>
+              
+              {/* Mobile Wishlist */}
+              {isAuthenticated && (
+                <Link
+                  to="/wishlist"
+                  className="flex items-center space-x-2 px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-primary-600 hover:bg-gray-50"
+                  onClick={() => setIsOpen(false)}
+                >
+                  <Heart className="h-5 w-5" />
+                  <span>Wishlist</span>
+                </Link>
+              )}
 
               {/* Mobile Auth */}
               {isAuthenticated ? (
@@ -270,6 +297,13 @@ const Navbar = () => {
                     onClick={() => setIsOpen(false)}
                   >
                     Orders
+                  </Link>
+                  <Link
+                    to="/wishlist"
+                    className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-primary-600 hover:bg-gray-50"
+                    onClick={() => setIsOpen(false)}
+                  >
+                    Wishlist
                   </Link>
                   {(user?.role === 'admin' || user?.role === 'seller') && (
                     <Link

@@ -4,16 +4,17 @@ import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import StripePayment from '../components/payment/StripePayment';
 import LoadingSpinner from '../components/common/LoadingSpinner';
-import { createOrder } from '../api/orderAPI';
+import { createOrder, orderAPI } from '../api/orderAPI';
 import { clearCart } from '../store/slices/cartSlice';
 
 const Checkout = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
-  const { items, total } = useSelector(state => state.cart);
+  const { items, totalAmount } = useSelector(state => state.cart);
   const { user } = useSelector(state => state.auth);
   const [currentOrder, setCurrentOrder] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [paymentMethod, setPaymentMethod] = useState('card'); // 'card' or 'cod'
 
   const [shippingInfo, setShippingInfo] = useState({
     firstName: '',
@@ -59,17 +60,37 @@ const Checkout = () => {
           price: item.product.price
         })),
         shippingAddress: shippingInfo,
-        totalAmount: total
+        totalAmount,
+        paymentMethod // Include the payment method in order data
       };
 
       const response = await createOrder(orderData);
       setCurrentOrder(response.data);
-      toast.success('Order created successfully! Please complete payment.');
+      
+      // If COD, complete the order immediately without payment processing
+      if (paymentMethod === 'cod') {
+        handleCodPayment(response.data);
+      } else {
+        toast.success('Order created successfully! Please complete payment.');
+      }
     } catch (error) {
       console.error('Error creating order:', error);
       toast.error(error.message || 'Failed to create order');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleCodPayment = async (order) => {
+    try {
+      // Update the order status to "Processing" since payment will be collected on delivery
+      await orderAPI.updateOrderStatus(order._id, 'Processing');
+      toast.success('Order placed successfully! Payment will be collected upon delivery.');
+      dispatch(clearCart());
+      navigate('/orders');
+    } catch (error) {
+      console.error('Error processing COD order:', error);
+      toast.error(error.message || 'Failed to process your Cash on Delivery order');
     }
   };
 
@@ -121,7 +142,7 @@ const Checkout = () => {
                   <div className="border-t pt-4">
                     <div className="flex justify-between text-lg font-semibold">
                       <span>Total: </span>
-                      <span>${total.toFixed(2)}</span>
+                      <span>${totalAmount.toFixed(2)}</span>
                     </div>
                   </div>
                 </div>
@@ -211,27 +232,69 @@ const Checkout = () => {
             <div className="space-y-6">
               {!currentOrder ? (
                 <div>
-                  <h2 className="text-lg font-medium text-gray-900 mb-4">Review & Create Order</h2>
-                  <p className="text-sm text-gray-600 mb-4">
-                    Please review your order and shipping information, then click "Create Order" to proceed to payment.
-                  </p>
+                  <h2 className="text-lg font-medium text-gray-900 mb-4">Payment Method</h2>
+                  
+                  <div className="space-y-3 mb-6">
+                    <div className="flex items-center space-x-3">
+                      <input
+                        type="radio"
+                        id="card-payment"
+                        name="payment-method"
+                        value="card"
+                        checked={paymentMethod === 'card'}
+                        onChange={() => setPaymentMethod('card')}
+                        className="h-4 w-4 text-green-600 focus:ring-green-500"
+                      />
+                      <label htmlFor="card-payment" className="text-sm text-gray-700 flex items-center">
+                        <span>Credit/Debit Card</span>
+                        <div className="flex items-center ml-2 space-x-1">
+                          <img src="/assets/visa.svg" alt="Visa" className="h-6" />
+                          <img src="/assets/mastercard.svg" alt="Mastercard" className="h-6" />
+                          <img src="/assets/amex.svg" alt="Amex" className="h-6" />
+                        </div>
+                      </label>
+                    </div>
+                    
+                    <div className="flex items-center space-x-3">
+                      <input
+                        type="radio"
+                        id="cod-payment"
+                        name="payment-method"
+                        value="cod"
+                        checked={paymentMethod === 'cod'}
+                        onChange={() => setPaymentMethod('cod')}
+                        className="h-4 w-4 text-green-600 focus:ring-green-500"
+                      />
+                      <label htmlFor="cod-payment" className="text-sm text-gray-700">
+                        <span>Cash on Delivery</span>
+                        <p className="text-xs text-gray-500 mt-1">
+                          Pay with cash when your order is delivered.
+                        </p>
+                      </label>
+                    </div>
+                  </div>
+                  
                   <button
                     onClick={handleCreateOrder}
                     disabled={loading || !shippingInfo.firstName || !shippingInfo.lastName || !shippingInfo.address}
                     className="w-full py-3 px-4 bg-green-600 text-white font-medium rounded-md hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed"
                   >
-                    {loading ? 'Creating Order...' : 'Create Order'}
+                    {loading ? 'Processing...' : paymentMethod === 'cod' ? 'Place Order (Cash on Delivery)' : 'Continue to Payment'}
                   </button>
                 </div>
               ) : (
                 <div>
-                  <h2 className="text-lg font-medium text-gray-900 mb-4">Payment</h2>
-                  <StripePayment
-                    orderId={currentOrder._id}
-                    amount={total}
-                    onSuccess={handlePaymentSuccess}
-                    onError={handlePaymentError}
-                  />
+                  {paymentMethod === 'card' ? (
+                    <div>
+                      <h2 className="text-lg font-medium text-gray-900 mb-4">Payment</h2>
+                      <StripePayment
+                        orderId={currentOrder._id}
+                        amount={totalAmount}
+                        onSuccess={handlePaymentSuccess}
+                        onError={handlePaymentError}
+                      />
+                    </div>
+                  ) : null}
                 </div>
               )}
             </div>

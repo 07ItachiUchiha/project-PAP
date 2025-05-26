@@ -10,22 +10,27 @@ const connectRedis = async () => {
   try {
     // Only connect to Redis if URL is provided
     if (!process.env.REDIS_URL) {
-      console.log('Redis URL not provided, skipping Redis connection');
+      console.log('Redis URL not provided, running without cache');
       return null;
     }
 
+    console.log('Attempting to connect to Redis...');
     client = redis.createClient({
       url: process.env.REDIS_URL,
+      socket: {
+        connectTimeout: 5000,
+        lazyConnect: true
+      },
       retry_strategy: (options) => {
         if (options.error && options.error.code === 'ECONNREFUSED') {
-          console.error('Redis connection refused');
+          console.error('Redis connection refused - running without cache');
           return new Error('Redis connection refused');
         }
         if (options.total_retry_time > 1000 * 60 * 60) {
           console.error('Redis retry time exhausted');
           return new Error('Retry time exhausted');
         }
-        if (options.attempt > 10) {
+        if (options.attempt > 3) {
           console.error('Redis max connection attempts reached');
           return undefined;
         }
@@ -34,17 +39,17 @@ const connectRedis = async () => {
     });
 
     client.on('error', (err) => {
-      console.error('Redis client error:', err);
+      console.error('Redis client error:', err.message);
       isConnected = false;
     });
 
     client.on('connect', () => {
-      console.log('Connected to Redis');
+      console.log('✅ Connected to Redis successfully');
       isConnected = true;
     });
 
     client.on('disconnect', () => {
-      console.log('Disconnected from Redis');
+      console.log('⚠️ Disconnected from Redis');
       isConnected = false;
     });
 
@@ -52,7 +57,8 @@ const connectRedis = async () => {
     return client;
 
   } catch (error) {
-    console.error('Failed to connect to Redis:', error);
+    console.error('❌ Failed to connect to Redis:', error.message);
+    console.log('ℹ️ Application will continue without caching');
     isConnected = false;
     return null;
   }

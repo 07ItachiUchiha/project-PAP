@@ -1,5 +1,6 @@
 import React, { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
+import { useNavigate } from 'react-router-dom';
 // eslint-disable-next-line no-unused-vars
 import { motion } from 'framer-motion';
 import { 
@@ -13,15 +14,28 @@ import LoadingSpinner from '../../components/common/LoadingSpinner';
 
 const Dashboard = () => {
   const dispatch = useDispatch();
+  const navigate = useNavigate();
   const { dashboardStats, isLoading } = useSelector((state) => state.admin);
 
   useEffect(() => {
     dispatch(fetchDashboardStats());
   }, [dispatch]);
 
-  if (isLoading) {
+  const handleAddProduct = () => {
+    navigate('/admin/products');
+  };
+  const handleViewAnalytics = () => {
+    // Navigate to analytics page
+    navigate('/admin/analytics');
+  };
+
+  const handleManageUsers = () => {
+    // Navigate to users page
+    navigate('/admin/users');
+  };
+  if (isLoading && !dashboardStats) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
+      <div className="flex items-center justify-center h-64">
         <LoadingSpinner />
       </div>
     );
@@ -52,22 +66,17 @@ const Dashboard = () => {
       icon: CurrencyDollarIcon,
       color: 'text-yellow-600 bg-yellow-100',
     },
-  ];
+  ];  return (
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.5 }}
+    >
+      <div className="mb-4">
+        <p className="text-gray-600">Overview of your PlantPAP store</p>
+      </div>
 
-  return (
-    <div className="min-h-screen bg-gray-50 py-8">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6 }}
-        >
-          <div className="mb-8">
-            <h1 className="text-3xl font-bold text-gray-900">Admin Dashboard</h1>
-            <p className="text-gray-600">Overview of your PlantPAP store</p>
-          </div>
-
-          {/* Stats Grid */}
+      {/* Stats Grid */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
             {stats.map((stat, index) => (
               <motion.div
@@ -162,34 +171,39 @@ const Dashboard = () => {
                 )}
               </div>
             </motion.div>
-          </div>
-
-          {/* Quick Actions */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.5 }}
-            className="mt-8 bg-white rounded-lg shadow-sm border border-gray-200 p-6"
+          </div>      {/* Quick Actions */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6, delay: 0.5 }}
+        className="mt-8 bg-white rounded-lg shadow-sm border border-gray-200 p-6"
+      >
+        <h2 className="text-lg font-semibold text-gray-900 mb-4">Quick Actions</h2>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <button 
+            onClick={handleAddProduct}
+            className="flex items-center justify-center px-4 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
           >
-            <h2 className="text-lg font-semibold text-gray-900 mb-4">Quick Actions</h2>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <button className="flex items-center justify-center px-4 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors">
-                <ShoppingBagIcon className="h-5 w-5 mr-2" />
-                Add New Product
-              </button>
-              <button className="flex items-center justify-center px-4 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
-                <ChartBarIcon className="h-5 w-5 mr-2" />
-                View Analytics
-              </button>
-              <button className="flex items-center justify-center px-4 py-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors">
-                <UsersIcon className="h-5 w-5 mr-2" />
-                Manage Users
-              </button>
-            </div>
-          </motion.div>
-        </motion.div>
-      </div>
-    </div>
+            <ShoppingBagIcon className="h-5 w-5 mr-2" />
+            Add New Product
+          </button>
+          <button 
+            onClick={handleViewAnalytics}
+            className="flex items-center justify-center px-4 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+          >
+            <ChartBarIcon className="h-5 w-5 mr-2" />
+            View Analytics
+          </button>
+          <button 
+            onClick={handleManageUsers}
+            className="flex items-center justify-center px-4 py-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors"
+          >
+            <UsersIcon className="h-5 w-5 mr-2" />
+            Manage Users
+          </button>
+        </div>
+      </motion.div>
+    </motion.div>
   );
 };
 
