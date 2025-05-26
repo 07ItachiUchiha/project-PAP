@@ -26,13 +26,12 @@ const ProductDetails = () => {
   
   const { isAuthenticated } = useSelector(state => state.auth);
   const { items: wishlistItems } = useSelector(state => state.wishlist || { items: [] });
-  
-  // Fetch product details
+    // Fetch product details
   useEffect(() => {
     const getProductDetails = async () => {
       try {
         setLoading(true);
-        const response = await fetchProductById(id);
+        const response = await productAPI.getProductById(id);
         setProduct(response.data.product);
         
         // Check if product is in wishlist
