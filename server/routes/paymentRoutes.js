@@ -1,19 +1,18 @@
 const express = require('express');
 const {
-  createPaymentIntent,
-  completePayment,
-  handleStripeWebhook
+  createRazorpayOrder,
+  verifyPayment,
+  handleRazorpayWebhook
 } = require('../controllers/paymentController');
 const { protect } = require('../middlewares/auth');
 
 const router = express.Router();
 
 // Protected routes
-router.post('/create-payment-intent', protect, createPaymentIntent);
-router.post('/complete-payment', protect, completePayment);
+router.post('/create-order', protect, createRazorpayOrder);
+router.post('/verify-payment', protect, verifyPayment);
 
-// Special route for Stripe webhook
-// This needs raw body for Stripe signature verification
-router.post('/webhook', express.raw({ type: 'application/json' }), handleStripeWebhook);
+// Special route for Razorpay webhook
+router.post('/webhook', express.json(), handleRazorpayWebhook);
 
 module.exports = router;

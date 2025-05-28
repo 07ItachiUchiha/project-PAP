@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
-import StripePayment from '../components/payment/StripePayment';
+import RazorpayPayment from '../components/payment/RazorpayPayment';
 import LoadingSpinner from '../components/common/LoadingSpinner';
 import { createOrder, orderAPI } from '../api/orderAPI';
 import { clearCart } from '../store/slices/cartSlice';
@@ -15,7 +15,6 @@ const Checkout = () => {
   const [currentOrder, setCurrentOrder] = useState(null);
   const [loading, setLoading] = useState(false);
   const [paymentMethod, setPaymentMethod] = useState('card'); // 'card' or 'cod'
-
   const [shippingInfo, setShippingInfo] = useState({
     firstName: '',
     lastName: '',
@@ -25,7 +24,7 @@ const Checkout = () => {
     city: '',
     state: '',
     zipCode: '',
-    country: 'US'
+    country: 'IN' // Changed to India since using Razorpay
   });
 
   useEffect(() => {
@@ -133,16 +132,14 @@ const Checkout = () => {
                       <div className="flex-1">
                         <h3 className="text-sm font-medium text-gray-900">{item.product.name}</h3>
                         <p className="text-sm text-gray-500">Quantity: {item.quantity}</p>
-                      </div>
-                      <span className="text-sm font-medium text-gray-900">
-                        ${(item.product.price * item.quantity).toFixed(2)}
+                      </div>                      <span className="text-sm font-medium text-gray-900">
+                        ₹{(item.product.price * item.quantity).toFixed(2)}
                       </span>
                     </div>
                   ))}
-                  <div className="border-t pt-4">
-                    <div className="flex justify-between text-lg font-semibold">
+                  <div className="border-t pt-4">                    <div className="flex justify-between text-lg font-semibold">
                       <span>Total: </span>
-                      <span>${totalAmount.toFixed(2)}</span>
+                      <span>₹{totalAmount.toFixed(2)}</span>
                     </div>
                   </div>
                 </div>
@@ -234,8 +231,7 @@ const Checkout = () => {
                 <div>
                   <h2 className="text-lg font-medium text-gray-900 mb-4">Payment Method</h2>
                   
-                  <div className="space-y-3 mb-6">
-                    <div className="flex items-center space-x-3">
+                  <div className="space-y-3 mb-6">                    <div className="flex items-center space-x-3">
                       <input
                         type="radio"
                         id="card-payment"
@@ -246,11 +242,9 @@ const Checkout = () => {
                         className="h-4 w-4 text-green-600 focus:ring-green-500"
                       />
                       <label htmlFor="card-payment" className="text-sm text-gray-700 flex items-center">
-                        <span>Credit/Debit Card</span>
+                        <span>Online Payment (Razorpay)</span>
                         <div className="flex items-center ml-2 space-x-1">
-                          <img src="/assets/visa.svg" alt="Visa" className="h-6" />
-                          <img src="/assets/mastercard.svg" alt="Mastercard" className="h-6" />
-                          <img src="/assets/amex.svg" alt="Amex" className="h-6" />
+                          <span className="text-xs text-gray-500">UPI, Cards, Net Banking</span>
                         </div>
                       </label>
                     </div>
@@ -273,25 +267,25 @@ const Checkout = () => {
                       </label>
                     </div>
                   </div>
-                  
-                  <button
+                    <button
                     onClick={handleCreateOrder}
                     disabled={loading || !shippingInfo.firstName || !shippingInfo.lastName || !shippingInfo.address}
                     className="w-full py-3 px-4 bg-green-600 text-white font-medium rounded-md hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed"
                   >
-                    {loading ? 'Processing...' : paymentMethod === 'cod' ? 'Place Order (Cash on Delivery)' : 'Continue to Payment'}
+                    {loading ? 'Processing...' : paymentMethod === 'cod' ? 'Place Order (Cash on Delivery)' : 'Continue to Razorpay Payment'}
                   </button>
                 </div>
               ) : (
-                <div>
-                  {paymentMethod === 'card' ? (
+                <div>                  {paymentMethod === 'card' ? (
                     <div>
                       <h2 className="text-lg font-medium text-gray-900 mb-4">Payment</h2>
-                      <StripePayment
+                      <RazorpayPayment
                         orderId={currentOrder._id}
                         amount={totalAmount}
+                        customerName={`${shippingInfo.firstName} ${shippingInfo.lastName}`}
+                        customerEmail={shippingInfo.email}
                         onSuccess={handlePaymentSuccess}
-                        onError={handlePaymentError}
+                        onFailure={handlePaymentError}
                       />
                     </div>
                   ) : null}

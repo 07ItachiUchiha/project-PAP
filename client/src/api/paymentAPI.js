@@ -1,19 +1,19 @@
 import api from './index';
 
-// Create payment intent
-export const createPaymentIntent = async (data) => {
+// Create Razorpay order
+export const createRazorpayOrder = async (data) => {
   try {
-    const response = await api.post('/payment/create-intent', data);
+    const response = await api.post('/payment/create-order', data);
     return response.data;
   } catch (error) {
     throw error.response?.data || error.message;
   }
 };
 
-// Confirm payment
-export const confirmPayment = async (data) => {
+// Verify payment
+export const verifyPayment = async (data) => {
   try {
-    const response = await api.post('/payment/confirm', data);
+    const response = await api.post('/payment/verify-payment', data);
     return response.data;
   } catch (error) {
     throw error.response?.data || error.message;
@@ -21,17 +21,14 @@ export const confirmPayment = async (data) => {
 };
 
 export const paymentAPI = {
-  // Create payment intent
-  createPaymentIntent: async (amount, currency = 'inr') => {
-    return await api.post('/payment/create-intent', { amount, currency });
+  // Create Razorpay order
+  createOrder: async (amount, orderId) => {
+    return await api.post('/payment/create-order', { amount, orderId });
   },
 
-  // Confirm payment
-  confirmPayment: async (paymentIntentId, paymentMethodId) => {
-    return await api.post('/payment/confirm', {
-      paymentIntentId,
-      paymentMethodId,
-    });
+  // Verify payment
+  verifyPayment: async (paymentData) => {
+    return await api.post('/payment/verify-payment', paymentData);
   },
 
   // Process order payment
@@ -40,15 +37,15 @@ export const paymentAPI = {
   },
 
   // Get payment status
-  getPaymentStatus: async (paymentIntentId) => {
-    return await api.get(`/payment/status/${paymentIntentId}`);
+  getPaymentStatus: async (orderId) => {
+    return await api.get(`/payment/status/${orderId}`);
   },
 
   // Webhook handler (for server-side verification)
   handleWebhook: async (payload, signature) => {
     return await api.post('/payment/webhook', payload, {
       headers: {
-        'stripe-signature': signature,
+        'x-razorpay-signature': signature,
       },
     });
   },
