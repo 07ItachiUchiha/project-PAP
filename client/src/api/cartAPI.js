@@ -20,10 +20,9 @@ export const cartAPI = {
   removeFromCart: async (productId) => {
     return await api.delete(`/cart/${productId}`);
   },
-
   // Clear cart
   clearCart: async () => {
-    return await api.delete('/cart');
+    return await api.delete('/cart/clear');
   },
 
   // Sync local cart with server cart (for when user logs in)

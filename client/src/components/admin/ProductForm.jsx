@@ -244,8 +244,7 @@ const ProductForm = ({ product, onSave, onCancel }) => {
       default:
         return [];
     }
-  };
-  const validateForm = () => {
+  };  const validateForm = () => {
     const newErrors = {};
 
     // Basic required fields
@@ -255,6 +254,9 @@ const ProductForm = ({ product, onSave, onCancel }) => {
     if (!formData.price || formData.price <= 0) newErrors.price = 'Valid price is required';
     if (!formData.stock || formData.stock < 0) newErrors.stock = 'Valid stock quantity is required';
     if (formData.images.length === 0) newErrors.images = 'At least one image is required';
+    
+    // Type is required by server model
+    if (!formData.type) newErrors.type = 'Please select a type';
     
     // Validate slug format
     if (formData.slug) {
@@ -481,23 +483,25 @@ const ProductForm = ({ product, onSave, onCancel }) => {
                       <option key={cat.value} value={cat.value}>{cat.label}</option>
                     ))}
                   </select>
-                </div>
-
-                <div>
+                </div>                <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Type
+                    Type <span className="text-red-500">*</span>
                   </label>
                   <select
                     name="type"
                     value={formData.type}
                     onChange={handleInputChange}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
+                    className={`w-full px-3 py-2 border ${errors.type ? 'border-red-500' : 'border-gray-300'} rounded-md focus:outline-none focus:ring-2 focus:ring-green-500`}
+                    required
                   >
                     <option value="">Select type</option>
                     {getTypeOptions().map(type => (
                       <option key={type.value} value={type.value}>{type.label}</option>
                     ))}
                   </select>
+                  {errors.type && (
+                    <p className="mt-1 text-sm text-red-500">{errors.type}</p>
+                  )}
                 </div>
               </div>
               

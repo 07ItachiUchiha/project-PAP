@@ -2,30 +2,44 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 // eslint-disable-next-line no-unused-vars
 import { motion } from 'framer-motion';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { 
   HeartIcon as HeartOutline, 
   ShoppingCartIcon,
   StarIcon 
 } from '@heroicons/react/24/outline';
 import { HeartIcon as HeartSolid } from '@heroicons/react/24/solid';
-import { addToCart } from '../../store/slices/cartSlice';
+import { addToCart, addToLocalCart } from '../../store/slices/cartSlice';
 import { toast } from 'react-toastify';
 
 const ProductCard = ({ product }) => {
   const dispatch = useDispatch();
+  const { isAuthenticated } = useSelector((state) => state.auth);
   const [isWishlisted, setIsWishlisted] = React.useState(false);
 
-  const handleAddToCart = (e) => {
+  const handleAddToCart = async (e) => {
     e.preventDefault();
     e.stopPropagation();
     
-    dispatch(addToCart({
-      productId: product._id,
-      quantity: 1
-    }));
-    
-    toast.success('Added to cart!');
+    if (isAuthenticated) {
+      // For authenticated users, use API-based cart
+      try {
+        await dispatch(addToCart({
+          productId: product._id,
+          quantity: 1
+        })).unwrap();
+        toast.success('Added to cart!');
+      } catch (error) {
+        toast.error(error || 'Failed to add to cart');
+      }
+    } else {
+      // For guest users, use local cart
+      dispatch(addToLocalCart({
+        product: product,
+        quantity: 1
+      }));
+      toast.success('Added to cart!');
+    }
   };
 
   const handleWishlist = (e) => {

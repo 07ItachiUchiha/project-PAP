@@ -61,8 +61,30 @@ app.use(cookieParser());
 // Compression middleware
 app.use(compression());
 
-// Serve static files from uploads directory
-app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+// Custom static file middleware with CORS for image access
+const serveStaticWithCORS = (directory) => {
+  return [
+    // CORS Headers middleware
+    (req, res, next) => {
+      // Disable security headers that might block cross-origin image loading
+      res.removeHeader('Content-Security-Policy');
+      res.removeHeader('Cross-Origin-Embedder-Policy');
+      res.removeHeader('X-Content-Type-Options');
+      
+      // Set permissive CORS headers
+      res.header('Access-Control-Allow-Origin', '*');
+      res.header('Access-Control-Allow-Headers', '*');
+      res.header('Access-Control-Allow-Methods', 'GET');
+      res.header('Cross-Origin-Resource-Policy', 'cross-origin');
+      next();
+    },
+    // Static file serving
+    express.static(path.join(__dirname, directory))
+  ];
+};
+
+// Serve static files from uploads directory with CORS headers
+app.use('/uploads', serveStaticWithCORS('uploads'));
 
 // Logging middleware
 if (process.env.NODE_ENV === 'development') {

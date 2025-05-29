@@ -1,13 +1,13 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { Link, useParams, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 // eslint-disable-next-line no-unused-vars
 import { motion } from 'framer-motion';
-import { HeartIcon, ShoppingCartIcon, ArrowLeftIcon, CheckIcon, ShieldCheckIcon, TruckIcon } from '@heroicons/react/24/outline';
+import { HeartIcon, ShoppingCartIcon, ArrowLeftIcon, CheckIcon, ShieldCheckIcon, TruckIcon, XMarkIcon } from '@heroicons/react/24/outline';
 import { HeartIcon as HeartSolid } from '@heroicons/react/24/solid';
 import { StarIcon } from '@heroicons/react/24/solid';
 import { toast } from 'react-toastify';
-import { addToCart } from '../store/slices/cartSlice';
+import { addToCart, addToLocalCart } from '../store/slices/cartSlice';
 import { addToWishlist, removeFromWishlist } from '../store/slices/wishlistSlice';
 import { fetchProductById } from '../store/slices/productSlice';
 import LoadingSpinner from '../components/common/LoadingSpinner';
@@ -16,7 +16,9 @@ const ProductDetails = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const dispatch = useDispatch();
+  const isMounted = useRef(false);
   
+  // Component state
   const [product, setProduct] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -24,38 +26,68 @@ const ProductDetails = () => {
   const [selectedImage, setSelectedImage] = useState(0);
   const [inWishlist, setInWishlist] = useState(false);
   
-  const { isAuthenticated } = useSelector(state => state.auth);
-  const { items: wishlistItems } = useSelector(state => state.wishlist || { items: [] });
-  // Fetch product details
+  // Selectors
+  const isAuthenticated = useSelector(state => state.auth.isAuthenticated);
+  
+  // Safe selector that won't cause re-renders with new array references
+  const wishlistItems = useSelector(state => {
+    return state.wishlist?.items || [];
+  });
+  
+  // Check if product is in wishlist - memoized to prevent recalculations
+  const isInWishlist = useMemo(() => {
+    if (!wishlistItems?.length || !id) return false;
+    return wishlistItems.some(item => item._id === id);
+  }, [wishlistItems, id]);
+  
+  // Fetch product details on mount
   useEffect(() => {
-    const getProductDetails = async () => {
+    const getProductData = async () => {
+      if (!id) return;
+      
       try {
         setLoading(true);
         const resultAction = await dispatch(fetchProductById(id));
+        
+        // Only update state if still mounted
+        if (!isMounted.current) return;
+        
         if (fetchProductById.fulfilled.match(resultAction)) {
           setProduct(resultAction.payload.product);
-          
-          // Check if product is in wishlist
-          if (wishlistItems && wishlistItems.some(item => item._id === id)) {
-            setInWishlist(true);
-          }
         } else {
-          const error = resultAction.error;
-          setError(error.message || 'Failed to load product details');
-          toast.error('Failed to load product details');
+          const errorMsg = resultAction.error?.message || 'Failed to load product details';
+          setError(errorMsg);
+          toast.error(errorMsg);
         }
       } catch (error) {
-        console.error('Error fetching product:', error);
-        setError(error.message || 'Failed to load product details');
-        toast.error('Failed to load product details');
+        if (!isMounted.current) return;
+        const errorMsg = error.message || 'Failed to load product details';
+        setError(errorMsg);
+        toast.error(errorMsg);
       } finally {
-        setLoading(false);
+        if (isMounted.current) {
+          setLoading(false);
+        }
       }
     };
     
-    getProductDetails();
-  }, [id, wishlistItems, dispatch]);
+    isMounted.current = true;
+    getProductData();
+    
+    // Cleanup function
+    return () => {
+      isMounted.current = false;
+    };
+  }, [id, dispatch]);
   
+  // Update wishlist status separately to avoid dependency cycles
+  useEffect(() => {
+    if (isMounted.current) {
+      setInWishlist(isInWishlist);
+    }
+  }, [isInWishlist]);
+  
+  // Quantity handlers
   const handleQuantityChange = (e) => {
     const value = parseInt(e.target.value);
     if (value > 0 && value <= (product?.stock || 10)) {
@@ -75,24 +107,29 @@ const ProductDetails = () => {
     }
   };
   
-  const handleAddToCart = () => {
-    if (!isAuthenticated) {
-      toast.info('Please login to add items to cart');
-      navigate('/login');
-      return;
-    }
+  // Cart handler - supports both guest and authenticated users
+  const handleAddToCart = async () => {
+    if (!product) return;
     
-    dispatch(addToCart({ productId: product._id, quantity }))
-      .unwrap()
-      .then(() => {
+    if (isAuthenticated) {
+      // API-based cart for authenticated users
+      try {
+        await dispatch(addToCart({ productId: product._id, quantity })).unwrap();
         toast.success(`${product.name} added to cart!`);
-      })
-      .catch(error => {
+      } catch (error) {
         toast.error(error || 'Failed to add to cart');
-      });
+      }
+    } else {
+      // Local cart for guest users
+      dispatch(addToLocalCart({ product: product, quantity }));
+      toast.success(`${product.name} added to cart!`);
+    }
   };
   
+  // Wishlist toggle handler
   const toggleWishlist = () => {
+    if (!product) return;
+    
     if (!isAuthenticated) {
       toast.info('Please login to add items to wishlist');
       navigate('/login');
@@ -250,11 +287,11 @@ const ProductDetails = () => {
               
               {/* Stock Status */}
               <div className="mb-6">
-                <div className="flex items-center">
+                <div className="flex items-center">                  
                   {product.stock > 0 ? (
                     <CheckIcon className="h-5 w-5 text-green-600 mr-2" />
                   ) : (
-                    <XIcon className="h-5 w-5 text-red-600 mr-2" />
+                    <XMarkIcon className="h-5 w-5 text-red-600 mr-2" />
                   )}
                   <span className={`${product.stock > 0 ? 'text-green-600' : 'text-red-600'}`}>
                     {product.stock > 0 ? 'In Stock' : 'Out of Stock'}

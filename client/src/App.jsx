@@ -72,14 +72,14 @@ const AdminLayout = () => {
 // App Layout Component
 const AppLayout = () => {
   const dispatch = useDispatch();
-  const { isAuthenticated, token } = useSelector((state) => state.auth);
+  const { isAuthenticated, token, user } = useSelector((state) => state.auth);
 
   useEffect(() => {
-    // If user has token, try to get profile
-    if (token && isAuthenticated) {
+    // Only fetch profile if we have a token but no user data yet
+    if (token && !user && !isAuthenticated) {
       dispatch(getProfile());
     }
-  }, [dispatch, token, isAuthenticated]);
+  }, [dispatch, token, user, isAuthenticated]);
 
   return (
     <div className="min-h-screen bg-gray-50">

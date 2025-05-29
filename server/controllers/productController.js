@@ -159,8 +159,24 @@ const getProduct = async (req, res, next) => {
 // @access  Private/Admin
 const createProduct = async (req, res, next) => {
   try {
-    // Add user to req.body
+    // Add required fields
     req.body.createdBy = req.user.id;
+    req.body.seller = req.user.id; // Admin is the seller
+    
+    // Ensure images array is properly formatted
+    if (req.body.images && Array.isArray(req.body.images)) {
+      req.body.images = req.body.images.map(img => {
+        if (typeof img === 'string') {
+          // If it's just a URL string, convert to proper format
+          return {
+            url: img,
+            filename: img.split('/').pop() || 'image',
+            originalName: img.split('/').pop() || 'image'
+          };
+        }
+        return img; // Already in correct format
+      });
+    }
 
     const product = await Product.create(req.body);
 
@@ -169,6 +185,18 @@ const createProduct = async (req, res, next) => {
       product
     });
   } catch (error) {
+    // Log the validation error for debugging
+    console.error('Product creation error:', error);
+    
+    if (error.name === 'ValidationError') {
+      const messages = Object.values(error.errors).map(val => val.message);
+      return res.status(400).json({
+        success: false,
+        message: 'Validation Error',
+        errors: messages
+      });
+    }
+    
     next(error);
   }
 };

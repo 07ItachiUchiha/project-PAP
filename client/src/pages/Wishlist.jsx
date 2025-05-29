@@ -6,7 +6,7 @@ import { motion } from 'framer-motion';
 import { XMarkIcon, ShoppingCartIcon } from '@heroicons/react/24/outline';
 import { toast } from 'react-toastify';
 import { fetchWishlist, removeFromWishlist } from '../store/slices/wishlistSlice';
-import { addToCart } from '../store/slices/cartSlice';
+import { addToCart, addToLocalCart } from '../store/slices/cartSlice';
 import LoadingSpinner from '../components/common/LoadingSpinner';
 
 const Wishlist = () => {
@@ -34,18 +34,28 @@ const Wishlist = () => {
         toast.error(error || 'Failed to remove from wishlist');
       });
   };
-
-  const handleAddToCart = (productId) => {
-    dispatch(addToCart({ productId, quantity: 1 }))
-      .unwrap()
-      .then(() => {
+  const handleAddToCart = async (productId) => {
+    if (isAuthenticated) {
+      // API-based cart for authenticated users
+      try {
+        await dispatch(addToCart({ productId, quantity: 1 })).unwrap();
         toast.success('Added to cart!');
         // Optionally remove from wishlist after adding to cart
         // dispatch(removeFromWishlist(productId));
-      })
-      .catch((error) => {
+      } catch (error) {
         toast.error(error || 'Failed to add to cart');
-      });
+      }
+    } else {
+      // Local cart for guest users
+      // Find the product from wishlist items
+      const product = items.find(item => item._id === productId);
+      if (product) {
+        dispatch(addToLocalCart({ product: product, quantity: 1 }));
+        toast.success('Added to cart!');
+      } else {
+        toast.error('Product not found');
+      }
+    }
   };
 
   if (loading) {
