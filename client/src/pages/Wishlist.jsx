@@ -116,9 +116,10 @@ const Wishlist = () => {
                     >
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="flex items-center">
-                          <div className="h-16 w-16 flex-shrink-0 rounded overflow-hidden">
-                            <img
-                              src={item.images && item.images.length > 0 ? item.images[0] : 'https://via.placeholder.com/150'}
+                          <div className="h-16 w-16 flex-shrink-0 rounded overflow-hidden">                            <img
+                              src={item.images && item.images.length > 0 
+                                ? (item.images[0]?.url || item.images[0]) 
+                                : 'https://via.placeholder.com/150'}
                               alt={item.name}
                               className="h-full w-full object-cover"
                             />
@@ -147,9 +148,8 @@ const Wishlist = () => {
                         </span>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                        <div className="flex justify-end space-x-2">
-                          <button
-                            className="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md shadow-sm text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
+                        <div className="flex justify-end space-x-2">                          <button
+                            className="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md shadow-sm text-black bg-green-500 hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
                             onClick={() => handleAddToCart(item._id)}
                             disabled={!item.stock || item.stock <= 0}
                           >

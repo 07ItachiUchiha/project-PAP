@@ -62,7 +62,15 @@ const createOrder = async (req, res, next) => {
     }    const order = await Order.create({
       user: req.user.id,
       orderItems: validatedItems,
-      shippingAddress,
+      shippingAddress: {
+        name: shippingAddress.name,
+        phone: shippingAddress.phone,
+        street: shippingAddress.address, // Map 'address' from validation to 'street' for model
+        city: shippingAddress.city,
+        state: shippingAddress.state,
+        zipCode: shippingAddress.postalCode, // Map 'postalCode' from validation to 'zipCode' for model
+        country: shippingAddress.country
+      },
       paymentInfo: {
         paymentMethod,
         paymentStatus: paymentMethod === 'cod' ? 'pending' : 'completed'

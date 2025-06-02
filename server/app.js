@@ -16,6 +16,7 @@ const adminRoutes = require('./routes/adminRoutes');
 const uploadRoutes = require('./routes/uploadRoutes');
 const paymentRoutes = require('./routes/paymentRoutes');
 const searchRoutes = require('./routes/searchRoutes');
+const wishlistRoutes = require('./routes/wishlistRoutes');
 
 // Import middleware
 const errorHandler = require('./middlewares/errorHandler');
@@ -66,20 +67,41 @@ const serveStaticWithCORS = (directory) => {
   return [
     // CORS Headers middleware
     (req, res, next) => {
-      // Disable security headers that might block cross-origin image loading
+      // Completely disable security headers that might block cross-origin image loading
       res.removeHeader('Content-Security-Policy');
       res.removeHeader('Cross-Origin-Embedder-Policy');
+      res.removeHeader('Cross-Origin-Resource-Policy');
       res.removeHeader('X-Content-Type-Options');
       
-      // Set permissive CORS headers
+      // Set fully permissive CORS headers
       res.header('Access-Control-Allow-Origin', '*');
-      res.header('Access-Control-Allow-Headers', '*');
-      res.header('Access-Control-Allow-Methods', 'GET');
+      res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
+      res.header('Access-Control-Allow-Methods', 'GET, OPTIONS');
+      // Explicitly set cross-origin resource policy header
       res.header('Cross-Origin-Resource-Policy', 'cross-origin');
+      
+      // For preflight requests
+      if (req.method === 'OPTIONS') {
+        return res.status(200).end();
+      }
+      
       next();
     },
-    // Static file serving
-    express.static(path.join(__dirname, directory))
+    // Static file serving with proper content type detection
+    express.static(path.join(__dirname, directory), {
+      setHeaders: (res, filePath) => {
+        // Set cache control for better performance
+        res.setHeader('Cache-Control', 'public, max-age=86400');
+        // Ensure proper content type for images
+        if (filePath.endsWith('.jpg') || filePath.endsWith('.jpeg')) {
+          res.setHeader('Content-Type', 'image/jpeg');
+        } else if (filePath.endsWith('.png')) {
+          res.setHeader('Content-Type', 'image/png');
+        } else if (filePath.endsWith('.webp')) {
+          res.setHeader('Content-Type', 'image/webp');
+        }
+      }
+    })
   ];
 };
 
@@ -113,6 +135,7 @@ app.use('/api/admin', adminRoutes);
 app.use('/api/upload', uploadRoutes);
 app.use('/api/payment', paymentRoutes);
 app.use('/api/search', searchRoutes);
+app.use('/api/wishlist', wishlistRoutes);
 
 // Handle undefined routes
 app.all('*', (req, res, next) => {

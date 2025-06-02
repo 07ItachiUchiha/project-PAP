@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import RazorpayPayment from '../components/payment/RazorpayPayment';
 import LoadingSpinner from '../components/common/LoadingSpinner';
-import { createOrder, orderAPI } from '../api/orderAPI';
+import { createOrder } from '../api/orderAPI';
 import { clearCart } from '../store/slices/cartSlice';
 
 const Checkout = () => {
@@ -47,20 +47,34 @@ const Checkout = () => {
       ...prev,
       [name]: value
     }));
-  };
-
-  const handleCreateOrder = async () => {
+  };  const handleCreateOrder = async () => {
     setLoading(true);
     try {
+      // Calculate prices
+      const itemsPrice = totalAmount;
+      const taxPrice = 0; // You can add tax calculation logic here
+      const shippingPrice = 0; // You can add shipping calculation logic here
+      const totalPrice = itemsPrice + taxPrice + shippingPrice;
+
       const orderData = {
-        items: items.map(item => ({
+        orderItems: items.map(item => ({
           product: item.product._id,
           quantity: item.quantity,
           price: item.product.price
-        })),
-        shippingAddress: shippingInfo,
-        totalAmount,
-        paymentMethod // Include the payment method in order data
+        })),        shippingAddress: {
+          name: `${shippingInfo.firstName} ${shippingInfo.lastName}`,
+          phone: shippingInfo.phone,
+          address: shippingInfo.address, // Changed from 'street' to 'address' to match validation
+          city: shippingInfo.city,
+          state: shippingInfo.state,
+          postalCode: shippingInfo.zipCode, // Changed from 'zipCode' to 'postalCode' to match validation
+          country: shippingInfo.country
+        },
+        paymentMethod: paymentMethod, // Backend expects this as a direct field
+        itemsPrice,
+        taxPrice,
+        shippingPrice,
+        totalPrice
       };
 
       const response = await createOrder(orderData);
@@ -79,11 +93,10 @@ const Checkout = () => {
       setLoading(false);
     }
   };
-
-  const handleCodPayment = async (order) => {
+  const handleCodPayment = async () => {
     try {
-      // Update the order status to "Processing" since payment will be collected on delivery
-      await orderAPI.updateOrderStatus(order._id, 'Processing');
+      // For COD orders, the payment status is already set to 'pending' by the server
+      // No need to update order status here as it's already set to 'processing' by default
       toast.success('Order placed successfully! Payment will be collected upon delivery.');
       dispatch(clearCart());
       navigate('/orders');

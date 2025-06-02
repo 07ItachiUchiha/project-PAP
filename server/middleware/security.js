@@ -7,12 +7,12 @@ const hpp = require('hpp');
 // Security headers middleware
 const securityHeaders = helmet({
   contentSecurityPolicy: {
-    directives: {
-      defaultSrc: ["'self'"],
+    directives: {      defaultSrc: ["'self'"],
       styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
-      fontSrc: ["'self'", "https://fonts.gstatic.com"],      imgSrc: ["'self'", "data:", "https://images.unsplash.com", "http://localhost:5000", "http://localhost:5173", "http://localhost:5174", "*"],
+      fontSrc: ["'self'", "https://fonts.gstatic.com"],      
+      imgSrc: ["'self'", "data:", "https://images.unsplash.com", "http://localhost:*", "http://127.0.0.1:*", "*"],
       scriptSrc: ["'self'", "'unsafe-inline'", "https://js.stripe.com", "https://checkout.razorpay.com"],
-      connectSrc: ["'self'", "https://api.stripe.com", "https://api.razorpay.com", "http://localhost:5000", "http://localhost:5173", "http://localhost:5174"],
+      connectSrc: ["'self'", "https://api.stripe.com", "https://api.razorpay.com", "http://localhost:*", "http://127.0.0.1:*"],
       frameSrc: ["'self'", "https://js.stripe.com", "https://hooks.stripe.com", "https://api.razorpay.com", "https://checkout.razorpay.com"],
       objectSrc: ["'none'"],
       mediaSrc: ["'self'"],
@@ -172,8 +172,11 @@ const corsOptions = {
       process.env.CLIENT_URL || 'http://localhost:5173',
       'http://localhost:3000',
       'http://localhost:5000',
-      'http://127.0.0.1:5173',  // Added localhost equivalent
-      'http://127.0.0.1:3000'   // Added localhost equivalent
+      'http://localhost:5174',
+      'http://127.0.0.1:5173',
+      'http://127.0.0.1:5174',
+      'http://127.0.0.1:3000',
+      'http://127.0.0.1:5000'
     ];
 
     // Allow requests with no origin (like mobile apps or curl requests)

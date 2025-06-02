@@ -204,10 +204,9 @@ const ProductDetails = () => {
           <div className="md:flex">
             {/* Product Images */}
             <div className="md:w-1/2 p-6">
-              <div className="relative h-96 rounded-lg overflow-hidden mb-4">
-                <img 
+              <div className="relative h-96 rounded-lg overflow-hidden mb-4">                <img 
                   src={product.images && product.images.length > 0 
-                    ? product.images[selectedImage]
+                    ? (product.images[selectedImage]?.url || product.images[selectedImage])
                     : 'https://via.placeholder.com/600x600'
                   } 
                   alt={product.name}
@@ -225,9 +224,8 @@ const ProductDetails = () => {
                         selectedImage === index ? 'border-primary-500' : 'border-transparent'
                       }`}
                       onClick={() => setSelectedImage(index)}
-                    >
-                      <img 
-                        src={image} 
+                    >                      <img 
+                        src={image?.url || image} 
                         alt={`${product.name} ${index + 1}`}
                         className="w-full h-full object-cover rounded"
                       />
@@ -330,15 +328,14 @@ const ProductDetails = () => {
               </div>
               
               {/* Actions */}
-              <div className="flex flex-col space-y-3 sm:flex-row sm:space-y-0 sm:space-x-3 mb-6">
-                <motion.button
+              <div className="flex flex-col space-y-3 sm:flex-row sm:space-y-0 sm:space-x-3 mb-6">                <motion.button
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
                   onClick={handleAddToCart}
                   disabled={!product.stock || product.stock <= 0}
                   className={`flex-1 flex items-center justify-center px-6 py-3 rounded-lg font-medium ${
                     product.stock > 0
-                      ? 'bg-primary-600 text-white hover:bg-primary-700'
+                      ? 'bg-green-500 text-black hover:bg-green-600 hover:shadow-lg'
                       : 'bg-gray-300 text-gray-500 cursor-not-allowed'
                   }`}
                 >

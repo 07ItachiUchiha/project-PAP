@@ -76,9 +76,8 @@ const ProductCard = ({ product }) => {
       <Link to={`/product/${product._id}`} className="block">
         <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-xl transition-shadow duration-300">
           {/* Image Container */}
-          <div className="relative aspect-square overflow-hidden">
-            <img 
-              src={product.images?.[0] || '/placeholder-plant.jpg'} 
+          <div className="relative aspect-square overflow-hidden">            <img 
+              src={product.images?.[0]?.url || product.images?.[0] || '/placeholder-plant.jpg'} 
               alt={product.name}
               className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
             />
@@ -119,14 +118,12 @@ const ProductCard = ({ product }) => {
                   <HeartOutline className="h-5 w-5 text-gray-600" />
                 )}
               </button>
-            </div>
-
-            {/* Quick Add Button */}
-            <div className="absolute bottom-4 left-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+            </div>            {/* Quick Add Button - Now visible always with hover effect */}
+            <div className="absolute bottom-4 left-4 right-4 transition-all duration-300">
               <button
                 onClick={handleAddToCart}
                 disabled={product.stock === 0}
-                className="w-full bg-primary-600 text-white py-2 px-4 rounded-full hover:bg-primary-700 transition-colors duration-300 flex items-center justify-center gap-2 disabled:bg-gray-400 disabled:cursor-not-allowed"
+                className="w-full bg-green-500 text-black py-2 px-4 rounded-full hover:bg-green-600 hover:shadow-lg transform hover:-translate-y-1 transition-all duration-300 flex items-center justify-center gap-2 disabled:bg-gray-400 disabled:cursor-not-allowed font-medium"
               >
                 <ShoppingCartIcon className="h-4 w-4" />
                 {product.stock === 0 ? 'Out of Stock' : 'Quick Add'}
