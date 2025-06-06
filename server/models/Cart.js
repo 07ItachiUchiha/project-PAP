@@ -27,11 +27,31 @@ const cartSchema = new mongoose.Schema({
     required: true
   },
   items: [cartItemSchema],
-  totalAmount: {
+  subtotal: {
     type: Number,
     default: 0
   },
-  discount: {
+  appliedCoupons: [{
+    coupon: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Coupon',
+      required: true
+    },
+    discountAmount: {
+      type: Number,
+      required: true,
+      min: 0
+    },
+    appliedAt: {
+      type: Date,
+      default: Date.now
+    }
+  }],
+  totalDiscount: {
+    type: Number,
+    default: 0
+  },
+  totalAmount: {
     type: Number,
     default: 0
   },
@@ -43,14 +63,33 @@ const cartSchema = new mongoose.Schema({
   timestamps: true
 });
 
-// Calculate total amount before saving
+// Calculate amounts before saving
 cartSchema.pre('save', function(next) {
-  this.totalAmount = this.items.reduce((total, item) => {
+  // Calculate subtotal
+  this.subtotal = this.items.reduce((total, item) => {
     return total + (item.price * item.quantity);
   }, 0);
   
-  this.finalAmount = this.totalAmount - this.discount;
+  // Calculate total discount from applied coupons
+  this.totalDiscount = this.appliedCoupons.reduce((total, couponData) => {
+    return total + couponData.discountAmount;
+  }, 0);
+  
+  // Calculate final amounts
+  this.totalAmount = this.subtotal;
+  this.finalAmount = Math.max(0, this.subtotal - this.totalDiscount);
+  
   next();
 });
+
+// Instance method to check if coupon is already applied
+cartSchema.methods.hasCoupon = function(couponId) {
+  return this.appliedCoupons.some(c => c.coupon.toString() === couponId.toString());
+};
+
+// Instance method to remove coupon
+cartSchema.methods.removeCoupon = function(couponId) {
+  this.appliedCoupons = this.appliedCoupons.filter(c => c.coupon.toString() !== couponId.toString());
+};
 
 module.exports = mongoose.model('Cart', cartSchema);

@@ -7,7 +7,9 @@ import {
   ShoppingBagIcon, 
   ShoppingCartIcon,
   UsersIcon,
-  ChartBarIcon
+  ChartBarIcon,
+  ArrowUturnLeftIcon,
+  ReceiptPercentIcon
 } from '@heroicons/react/24/outline';
 
 const AdminSidebar = () => {
@@ -23,12 +25,20 @@ const AdminSidebar = () => {
     {
       name: 'Products',
       path: '/admin/products',
-      icon: ShoppingBagIcon
-    },
-    {
+      icon: ShoppingBagIcon    },    {
       name: 'Orders',
       path: '/admin/orders',
       icon: ShoppingCartIcon
+    },
+    {
+      name: 'Coupons',
+      path: '/admin/coupons',
+      icon: ReceiptPercentIcon
+    },
+    {
+      name: 'Returns',
+      path: '/admin/returns',
+      icon: ArrowUturnLeftIcon
     },
     {
       name: 'Users',

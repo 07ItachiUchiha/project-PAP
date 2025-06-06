@@ -12,7 +12,8 @@ import {
   Heart, 
   LogOut,
   Settings,
-  Package
+  Package,
+  RotateCcw
 } from 'lucide-react';
 import { logoutUser } from '../../store/slices/authSlice';
 import { toast } from 'react-toastify';
@@ -153,14 +154,21 @@ const Navbar = () => {
                       >
                         <Package className="h-4 w-4" />
                         <span>Orders</span>
-                      </Link>
-                      <Link
+                      </Link>                      <Link
                         to="/wishlist"
                         className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center space-x-2"
                         onClick={() => setUserMenuOpen(false)}
                       >
                         <Heart className="h-4 w-4" />
                         <span>Wishlist</span>
+                      </Link>
+                      <Link
+                        to="/returns"
+                        className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center space-x-2"
+                        onClick={() => setUserMenuOpen(false)}
+                      >
+                        <RotateCcw className="h-4 w-4" />
+                        <span>Returns</span>
                       </Link>
                       {(user?.role === 'admin' || user?.role === 'seller') && (
                         <Link

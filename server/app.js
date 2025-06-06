@@ -17,6 +17,9 @@ const uploadRoutes = require('./routes/uploadRoutes');
 const paymentRoutes = require('./routes/paymentRoutes');
 const searchRoutes = require('./routes/searchRoutes');
 const wishlistRoutes = require('./routes/wishlistRoutes');
+const reviewRoutes = require('./routes/reviewRoutes');
+const couponRoutes = require('./routes/couponRoutes');
+const returnRoutes = require('./routes/returnRoutes');
 
 // Import middleware
 const errorHandler = require('./middlewares/errorHandler');
@@ -41,16 +44,20 @@ app.use(sanitizeData);
 // Input validation middleware
 app.use(validateInput);
 
+// Enhanced CORS configuration (must come before rate limiting)
+app.use(cors(corsOptions));
+
 // Rate limiting with different configs for different endpoints
 app.use('/api/auth/login', rateLimits.auth);
 app.use('/api/auth/forgot-password', rateLimits.passwordReset);
 app.use('/api/upload', rateLimits.upload);
 app.use('/api/search', rateLimits.search);
 app.use('/api/orders', rateLimits.orders);
+// Very generous rate limit for coupon endpoints to prevent loops
+app.use('/api/coupons', rateLimits.coupons);
+// More lenient rate limit for cart endpoints
+app.use('/api/cart', rateLimits.cart);
 app.use('/api/', rateLimits.general);
-
-// Enhanced CORS configuration
-app.use(cors(corsOptions));
 
 // Body parsing middleware
 app.use(express.json({ limit: '10mb' }));
@@ -136,6 +143,9 @@ app.use('/api/upload', uploadRoutes);
 app.use('/api/payment', paymentRoutes);
 app.use('/api/search', searchRoutes);
 app.use('/api/wishlist', wishlistRoutes);
+app.use('/api/reviews', reviewRoutes);
+app.use('/api/coupons', couponRoutes);
+app.use('/api/returns', returnRoutes);
 
 // Handle undefined routes
 app.all('*', (req, res, next) => {

@@ -62,11 +62,54 @@ export const clearCart = createAsyncThunk(
   }
 );
 
+// Coupon-related async thunks
+export const fetchAvailableCoupons = createAsyncThunk(
+  'cart/fetchAvailableCoupons',
+  async (_, { rejectWithValue }) => {
+    try {
+      const response = await cartAPI.getAvailableCoupons();
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(error.response?.data?.message || 'Failed to fetch coupons');
+    }
+  }
+);
+
+export const applyCoupon = createAsyncThunk(
+  'cart/applyCoupon',
+  async (couponCode, { rejectWithValue }) => {
+    try {
+      const response = await cartAPI.applyCoupon(couponCode);
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(error.response?.data?.message || 'Failed to apply coupon');
+    }
+  }
+);
+
+export const removeCoupon = createAsyncThunk(
+  'cart/removeCoupon',
+  async (couponId, { rejectWithValue }) => {
+    try {
+      const response = await cartAPI.removeCoupon(couponId);
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(error.response?.data?.message || 'Failed to remove coupon');
+    }
+  }
+);
+
 const initialState = {
   items: [],
   totalQuantity: 0,
   totalAmount: 0,
+  subtotal: 0,
+  totalDiscount: 0,
+  finalAmount: 0,
+  appliedCoupons: [],
+  availableCoupons: [],
   isLoading: false,
+  couponLoading: false,
   error: null,
 };
 
@@ -132,12 +175,16 @@ const cartSlice = createSlice({
       .addCase(fetchCart.pending, (state) => {
         state.isLoading = true;
         state.error = null;
-      })
-      .addCase(fetchCart.fulfilled, (state, action) => {
+      })      .addCase(fetchCart.fulfilled, (state, action) => {
         state.isLoading = false;
-        state.items = action.payload.cart?.items || [];
-        state.totalQuantity = action.payload.cart?.totalQuantity || 0;
-        state.totalAmount = action.payload.cart?.totalAmount || 0;
+        const cart = action.payload.cart || {};
+        state.items = cart.items || [];
+        state.totalQuantity = cart.totalQuantity || 0;
+        state.totalAmount = cart.totalAmount || 0;
+        state.subtotal = cart.subtotal || 0;
+        state.totalDiscount = cart.totalDiscount || 0;
+        state.finalAmount = cart.finalAmount || 0;
+        state.appliedCoupons = cart.appliedCoupons || [];
       })
       .addCase(fetchCart.rejected, (state, action) => {
         state.isLoading = false;
@@ -147,12 +194,16 @@ const cartSlice = createSlice({
       .addCase(addToCart.pending, (state) => {
         state.isLoading = true;
         state.error = null;
-      })
-      .addCase(addToCart.fulfilled, (state, action) => {
+      })      .addCase(addToCart.fulfilled, (state, action) => {
         state.isLoading = false;
-        state.items = action.payload.cart.items;
-        state.totalQuantity = action.payload.cart.totalQuantity;
-        state.totalAmount = action.payload.cart.totalAmount;
+        const cart = action.payload.cart;
+        state.items = cart.items;
+        state.totalQuantity = cart.totalQuantity;
+        state.totalAmount = cart.totalAmount;
+        state.subtotal = cart.subtotal || 0;
+        state.totalDiscount = cart.totalDiscount || 0;
+        state.finalAmount = cart.finalAmount || 0;
+        state.appliedCoupons = cart.appliedCoupons || [];
       })
       .addCase(addToCart.rejected, (state, action) => {
         state.isLoading = false;
@@ -162,12 +213,16 @@ const cartSlice = createSlice({
       .addCase(updateCartItem.pending, (state) => {
         state.isLoading = true;
         state.error = null;
-      })
-      .addCase(updateCartItem.fulfilled, (state, action) => {
+      })      .addCase(updateCartItem.fulfilled, (state, action) => {
         state.isLoading = false;
-        state.items = action.payload.cart.items;
-        state.totalQuantity = action.payload.cart.totalQuantity;
-        state.totalAmount = action.payload.cart.totalAmount;
+        const cart = action.payload.cart;
+        state.items = cart.items;
+        state.totalQuantity = cart.totalQuantity;
+        state.totalAmount = cart.totalAmount;
+        state.subtotal = cart.subtotal || 0;
+        state.totalDiscount = cart.totalDiscount || 0;
+        state.finalAmount = cart.finalAmount || 0;
+        state.appliedCoupons = cart.appliedCoupons || [];
       })
       .addCase(updateCartItem.rejected, (state, action) => {
         state.isLoading = false;
@@ -177,12 +232,16 @@ const cartSlice = createSlice({
       .addCase(removeFromCart.pending, (state) => {
         state.isLoading = true;
         state.error = null;
-      })
-      .addCase(removeFromCart.fulfilled, (state, action) => {
+      })      .addCase(removeFromCart.fulfilled, (state, action) => {
         state.isLoading = false;
-        state.items = action.payload.cart.items;
-        state.totalQuantity = action.payload.cart.totalQuantity;
-        state.totalAmount = action.payload.cart.totalAmount;
+        const cart = action.payload.cart;
+        state.items = cart.items;
+        state.totalQuantity = cart.totalQuantity;
+        state.totalAmount = cart.totalAmount;
+        state.subtotal = cart.subtotal || 0;
+        state.totalDiscount = cart.totalDiscount || 0;
+        state.finalAmount = cart.finalAmount || 0;
+        state.appliedCoupons = cart.appliedCoupons || [];
       })
       .addCase(removeFromCart.rejected, (state, action) => {
         state.isLoading = false;
@@ -192,15 +251,71 @@ const cartSlice = createSlice({
       .addCase(clearCart.pending, (state) => {
         state.isLoading = true;
         state.error = null;
-      })
-      .addCase(clearCart.fulfilled, (state) => {
+      })      .addCase(clearCart.fulfilled, (state) => {
         state.isLoading = false;
         state.items = [];
         state.totalQuantity = 0;
         state.totalAmount = 0;
+        state.subtotal = 0;
+        state.totalDiscount = 0;
+        state.finalAmount = 0;
+        state.appliedCoupons = [];
       })
       .addCase(clearCart.rejected, (state, action) => {
         state.isLoading = false;
+        state.error = action.payload;
+      })
+      // Fetch Available Coupons
+      .addCase(fetchAvailableCoupons.pending, (state) => {
+        state.couponLoading = true;
+        state.error = null;
+      })
+      .addCase(fetchAvailableCoupons.fulfilled, (state, action) => {
+        state.couponLoading = false;
+        state.availableCoupons = action.payload.coupons || [];
+      })
+      .addCase(fetchAvailableCoupons.rejected, (state, action) => {
+        state.couponLoading = false;
+        state.error = action.payload;
+      })
+      // Apply Coupon
+      .addCase(applyCoupon.pending, (state) => {
+        state.couponLoading = true;
+        state.error = null;
+      })
+      .addCase(applyCoupon.fulfilled, (state, action) => {
+        state.couponLoading = false;
+        const cart = action.payload.cart;
+        state.items = cart.items;
+        state.totalQuantity = cart.totalQuantity;
+        state.totalAmount = cart.totalAmount;
+        state.subtotal = cart.subtotal || 0;
+        state.totalDiscount = cart.totalDiscount || 0;
+        state.finalAmount = cart.finalAmount || 0;
+        state.appliedCoupons = cart.appliedCoupons || [];
+      })
+      .addCase(applyCoupon.rejected, (state, action) => {
+        state.couponLoading = false;
+        state.error = action.payload;
+      })
+      // Remove Coupon
+      .addCase(removeCoupon.pending, (state) => {
+        state.couponLoading = true;
+        state.error = null;
+      })
+      .addCase(removeCoupon.fulfilled, (state, action) => {
+        state.couponLoading = false;
+        const cart = action.payload.cart;
+        state.items = cart.items;
+        state.totalQuantity = cart.totalQuantity;
+        state.totalAmount = cart.totalAmount;
+        state.subtotal = cart.subtotal || 0;
+        state.totalDiscount = cart.totalDiscount || 0;
+        state.finalAmount = cart.finalAmount || 0;
+        state.appliedCoupons = cart.appliedCoupons || [];
+      })
+      .addCase(removeCoupon.rejected, (state, action) => {
+        state.couponLoading = false;
         state.error = action.payload;
       });
   },

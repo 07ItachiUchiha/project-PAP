@@ -29,4 +29,17 @@ export const cartAPI = {
   syncCart: async (localCartItems) => {
     return await api.post('/cart/sync', { items: localCartItems });
   },
+
+  // Coupon functions
+  getAvailableCoupons: async () => {
+    return await api.get('/cart/available-coupons');
+  },
+
+  applyCoupon: async (couponCode) => {
+    return await api.post('/cart/apply-coupon', { couponCode });
+  },
+
+  removeCoupon: async (couponId) => {
+    return await api.delete(`/cart/remove-coupon/${couponId}`);
+  }
 };

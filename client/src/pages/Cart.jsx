@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Link, useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
@@ -7,22 +7,59 @@ import {
   updateCartItem, 
   removeFromCart, 
   updateLocalCartItem, 
-  removeFromLocalCart 
+  removeFromLocalCart,
+  fetchAvailableCoupons,
+  applyCoupon,
+  removeCoupon
 } from '../store/slices/cartSlice';
 import LoadingSpinner from '../components/common/LoadingSpinner';
+import CouponInput from '../components/cart/CouponInput';
 
 const Cart = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const { items, totalAmount, totalQuantity, isLoading } = useSelector(state => state.cart);
+  const { 
+    items, 
+    totalAmount, 
+    totalQuantity, 
+    subtotal,
+    totalDiscount,
+    finalAmount,
+    appliedCoupons,
+    availableCoupons,
+    isLoading,
+    couponLoading
+  } = useSelector(state => state.cart);
   const { isAuthenticated } = useSelector(state => state.auth);
   const [cartUpdating, setCartUpdating] = useState(false);
+  // Track if coupons have been loaded to prevent duplicate API calls
+  const [couponsInitialized, setCouponsInitialized] = useState(false);
+
+  // Memoize the onLoadCoupons function to prevent unnecessary re-renders
+  const handleLoadCoupons = useCallback(() => {
+    if (isAuthenticated && !couponsInitialized && availableCoupons.length === 0 && !couponLoading) {
+      dispatch(fetchAvailableCoupons());
+      setCouponsInitialized(true);
+    }
+  }, [dispatch, isAuthenticated, couponsInitialized, availableCoupons.length, couponLoading]);
 
   useEffect(() => {
     if (isAuthenticated) {
       dispatch(fetchCart());
+      // Only fetch coupons if not already initialized
+      if (!couponsInitialized && availableCoupons.length === 0) {
+        dispatch(fetchAvailableCoupons());
+        setCouponsInitialized(true);
+      }
     }
-  }, [dispatch, isAuthenticated]);
+  }, [dispatch, isAuthenticated, couponsInitialized, availableCoupons.length]);
+
+  // Mark coupons as initialized if they exist
+  useEffect(() => {
+    if (availableCoupons.length > 0) {
+      setCouponsInitialized(true);
+    }
+  }, [availableCoupons.length]);
 
   const handleQuantityChange = async (productId, quantity) => {
     setCartUpdating(true);
@@ -90,25 +127,30 @@ const Cart = () => {
         
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Cart Items */}
-          <div className="lg:col-span-2">
-            <div className="bg-white rounded-lg shadow overflow-hidden">
+          <div className="lg:col-span-2">            <div className="bg-white rounded-lg shadow overflow-hidden">
               <ul className="divide-y divide-gray-200">
-                {items.map((item) => (
-                  <li key={item._id || item.product._id} className="p-6">
-                    <div className="flex items-center flex-wrap sm:flex-nowrap gap-4">
-                      <div className="w-full sm:w-24 h-24 flex-shrink-0">
-                        <img 
-                          src={item.product.images?.[0]?.url || '/placeholder.jpg'} 
-                          alt={item.product.name}
-                          className="w-full h-full object-cover rounded-md"
-                        />
-                      </div>
-                      
-                      <div className="flex-1">
-                        <h3 className="text-lg font-medium text-gray-900">{item.product.name}</h3>
-                        <p className="mt-1 text-sm text-gray-500 line-clamp-2">{item.product.shortDescription || item.product.description}</p>
-                        <p className="mt-1 text-lg font-semibold text-green-600">${item.product.price.toFixed(2)}</p>
-                      </div>
+                {items.map((item) => {
+                  // Add null check for product
+                  if (!item.product) {
+                    return null;
+                  }
+                  
+                  return (
+                    <li key={item._id || item.product._id} className="p-6">
+                      <div className="flex items-center flex-wrap sm:flex-nowrap gap-4">
+                        <div className="w-full sm:w-24 h-24 flex-shrink-0">
+                          <img 
+                            src={item.product.images?.[0]?.url || '/placeholder.jpg'} 
+                            alt={item.product.name || 'Product'}
+                            className="w-full h-full object-cover rounded-md"
+                          />
+                        </div>
+                        
+                        <div className="flex-1">
+                          <h3 className="text-lg font-medium text-gray-900">{item.product.name || 'Unknown Product'}</h3>
+                          <p className="mt-1 text-sm text-gray-500 line-clamp-2">{item.product.shortDescription || item.product.description || 'No description available'}</p>
+                          <p className="mt-1 text-lg font-semibold text-green-600">${(item.product.price || 0).toFixed(2)}</p>
+                        </div>
                       
                       <div className="flex flex-col sm:flex-row items-center space-y-2 sm:space-y-0 sm:space-x-4">
                         <div className="flex items-center border border-gray-300 rounded">
@@ -128,8 +170,7 @@ const Cart = () => {
                             +
                           </button>
                         </div>
-                        
-                        <button 
+                          <button 
                           onClick={() => handleRemoveItem(item.product._id)}
                           className="text-red-600 hover:text-red-800 transition"
                           disabled={cartUpdating}
@@ -139,21 +180,62 @@ const Cart = () => {
                       </div>
                     </div>
                   </li>
-                ))}
+                  );
+                })}
               </ul>
             </div>
           </div>
-          
-          {/* Order Summary */}
+            {/* Order Summary */}
           <div className="lg:col-span-1">
             <div className="bg-white rounded-lg shadow p-6">
               <h2 className="text-xl font-semibold text-gray-900 mb-4">Order Summary</h2>
               
+              {/* Coupon Input Section */}
+              {isAuthenticated && (
+                <div className="mb-6">
+                  <CouponInput
+                    appliedCoupons={appliedCoupons}
+                    availableCoupons={availableCoupons}
+                    isLoading={couponLoading}
+                    onApplyCoupon={(couponCode) => {
+                      dispatch(applyCoupon(couponCode))
+                        .unwrap()
+                        .then(() => {
+                          toast.success('Coupon applied successfully!');
+                        })
+                        .catch((error) => {
+                          toast.error(error);
+                        });
+                    }}
+                    onRemoveCoupon={(couponId) => {
+                      dispatch(removeCoupon(couponId))
+                        .unwrap()
+                        .then(() => {
+                          toast.success('Coupon removed successfully!');
+                        })
+                        .catch((error) => {
+                          toast.error(error);
+                        });
+                    }}
+                    onLoadCoupons={handleLoadCoupons}
+                  />
+                </div>
+              )}
+              
               <div className="space-y-3 mb-6">
                 <div className="flex justify-between">
                   <span className="text-gray-600">Subtotal ({totalQuantity} items)</span>
-                  <span className="font-medium">${totalAmount.toFixed(2)}</span>
+                  <span className="font-medium">${(subtotal || totalAmount).toFixed(2)}</span>
                 </div>
+                
+                {/* Show discount if any coupons are applied */}
+                {appliedCoupons && appliedCoupons.length > 0 && (
+                  <div className="flex justify-between text-green-600">
+                    <span>Total Discount</span>
+                    <span className="font-medium">-${totalDiscount.toFixed(2)}</span>
+                  </div>
+                )}
+                
                 <div className="flex justify-between">
                   <span className="text-gray-600">Shipping</span>
                   <span className="font-medium">Calculated at checkout</span>
@@ -165,7 +247,7 @@ const Cart = () => {
                 <div className="border-t pt-3 mt-3">
                   <div className="flex justify-between text-lg font-semibold">
                     <span>Total</span>
-                    <span>${totalAmount.toFixed(2)}</span>
+                    <span>${(finalAmount || totalAmount).toFixed(2)}</span>
                   </div>
                 </div>
               </div>

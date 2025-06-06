@@ -51,8 +51,29 @@ export const adminAPI = {
   getProductAnalytics: async () => {
     return await api.get('/admin/analytics/products');
   },
-
   getUserAnalytics: async () => {
     return await api.get('/admin/analytics/users');
+  },
+
+  // Coupon management
+  getAllCoupons: async (params = {}) => {
+    const queryString = new URLSearchParams(params).toString();
+    return await api.get(`/admin/coupons?${queryString}`);
+  },
+
+  createCoupon: async (couponData) => {
+    return await api.post('/admin/coupons', couponData);
+  },
+
+  updateCoupon: async (couponId, couponData) => {
+    return await api.put(`/admin/coupons/${couponId}`, couponData);
+  },
+
+  deleteCoupon: async (couponId) => {
+    return await api.delete(`/admin/coupons/${couponId}`);
+  },
+
+  getCouponUsage: async (couponId) => {
+    return await api.get(`/admin/coupons/${couponId}/usage`);
   },
 };

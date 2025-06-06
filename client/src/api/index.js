@@ -5,8 +5,11 @@ import { toast } from 'react-toastify';
 // Create axios instance
 const api = axios.create({
   baseURL: import.meta.env.VITE_API_URL || 'http://localhost:5000/api',
-  timeout: 10000,
+  timeout: 15000, // Increased timeout
   withCredentials: true,
+  headers: {
+    'Content-Type': 'application/json',
+  }
 });
 
 // Request interceptor to add auth token
@@ -27,8 +30,7 @@ api.interceptors.request.use(
 api.interceptors.response.use(
   (response) => {
     return response;
-  },
-  (error) => {
+  },  (error) => {
     const message = error.response?.data?.message || error.message || 'Something went wrong';
     
     // Handle different error status codes
@@ -41,10 +43,18 @@ api.interceptors.response.use(
       toast.error('You do not have permission to perform this action.');
     } else if (error.response?.status === 404) {
       toast.error('Resource not found.');
+    } else if (error.response?.status === 429) {
+      // Rate limit error - don't show toast to avoid spam
+      console.warn('Rate limit exceeded:', message);
     } else if (error.response?.status >= 500) {
       toast.error('Server error. Please try again later.');
+    } else if (error.code === 'ERR_NETWORK') {
+      toast.error('Network error. Please check your connection.');
     } else {
-      toast.error(message);
+      // Only show toast for non-rate-limit errors
+      if (error.response?.status !== 429) {
+        toast.error(message);
+      }
     }
     
     return Promise.reject(error);

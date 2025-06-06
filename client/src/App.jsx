@@ -25,8 +25,15 @@ import Wishlist from './pages/Wishlist';
 import Dashboard from './pages/admin/Dashboard';
 import Products from './pages/admin/Products';
 import AdminOrders from './pages/admin/Orders';
+import AdminCoupons from './pages/admin/Coupons';
 import Users from './pages/admin/Users';
 import NotFound from './pages/NotFound';
+
+// Return Components
+import CreateReturn from './components/returns/CreateReturn';
+import UserReturns from './components/returns/UserReturns';
+import AdminReturns from './components/returns/AdminReturns';
+import ReturnDetail from './components/returns/ReturnDetail';
 
 // Protected Route Component
 import ProtectedRoute from './components/auth/ProtectedRoute';
@@ -60,6 +67,8 @@ const AdminLayout = () => {
             <Route path="/" element={<Dashboard />} />
             <Route path="/products" element={<Products />} />
             <Route path="/orders" element={<AdminOrders />} />
+            <Route path="/coupons" element={<AdminCoupons />} />
+            <Route path="/returns" element={<AdminReturns />} />
             <Route path="/users" element={<Users />} />
             <Route path="/analytics" element={<Dashboard />} /> {/* Placeholder until analytics page is created */}
           </Routes>
@@ -72,14 +81,14 @@ const AdminLayout = () => {
 // App Layout Component
 const AppLayout = () => {
   const dispatch = useDispatch();
-  const { isAuthenticated, token, user } = useSelector((state) => state.auth);
+  const { token, user } = useSelector((state) => state.auth);
 
   useEffect(() => {
     // Only fetch profile if we have a token but no user data yet
-    if (token && !user && !isAuthenticated) {
+    if (token && !user) {
       dispatch(getProfile());
     }
-  }, [dispatch, token, user, isAuthenticated]);
+  }, [dispatch, token, user]);
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -114,6 +123,23 @@ const AppLayout = () => {
           <Route path="/wishlist" element={
             <ProtectedRoute>
               <Wishlist />
+            </ProtectedRoute>
+          } />
+
+          {/* Return Routes */}
+          <Route path="/returns" element={
+            <ProtectedRoute>
+              <UserReturns />
+            </ProtectedRoute>
+          } />
+          <Route path="/returns/create" element={
+            <ProtectedRoute>
+              <CreateReturn />
+            </ProtectedRoute>
+          } />
+          <Route path="/returns/:returnId" element={
+            <ProtectedRoute>
+              <ReturnDetail />
             </ProtectedRoute>
           } />
 

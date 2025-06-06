@@ -61,9 +61,22 @@ const validationRules = {
     .withMessage('Stock is required')
     .isInt({ min: 0 })
     .withMessage('Stock must be a non-negative integer'),
-
   // Order validation
   shippingAddress: [
+    body('shippingAddress.name')
+      .trim()
+      .notEmpty()
+      .withMessage('Name is required')
+      .isLength({ min: 2, max: 100 })
+      .withMessage('Name must be between 2 and 100 characters'),
+
+    body('shippingAddress.phone')
+      .trim()
+      .notEmpty()
+      .withMessage('Phone number is required')
+      .matches(/^[6-9]\d{9}$/)
+      .withMessage('Phone number must be a valid 10-digit Indian mobile number'),
+
     body('shippingAddress.address')
       .trim()
       .notEmpty()
@@ -83,14 +96,12 @@ const validationRules = {
       .notEmpty()
       .withMessage('State is required')
       .isLength({ min: 2, max: 50 })
-      .withMessage('State must be between 2 and 50 characters'),
-
-    body('shippingAddress.postalCode')
+      .withMessage('State must be between 2 and 50 characters'),    body('shippingAddress.postalCode')
       .trim()
       .notEmpty()
       .withMessage('Postal code is required')
-      .matches(/^[0-9]{6}$/)
-      .withMessage('Postal code must be 6 digits'),
+      .matches(/^[0-9]{5,6}$/)
+      .withMessage('Postal code must be 5-6 digits'),
 
     body('shippingAddress.country')
       .trim()

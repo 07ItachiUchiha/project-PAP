@@ -13,7 +13,13 @@ const { protect, authorize } = require('../middlewares/auth');
 const { validate, validationSets } = require('../utils/validation');
 const { cacheConfigs } = require('../utils/cache');
 
+// Import review routes
+const reviewRoutes = require('./reviewRoutes');
+
 const router = express.Router();
+
+// Re-route into other resource routers
+router.use('/:productId/reviews', reviewRoutes);
 
 // Public routes with caching
 router.get('/featured', cacheConfigs.products, getFeaturedProducts);

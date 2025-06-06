@@ -7,7 +7,8 @@ import {
   UsersIcon, 
   ShoppingBagIcon, 
   CurrencyDollarIcon, 
-  ChartBarIcon 
+  ChartBarIcon,
+  ReceiptPercentIcon 
 } from '@heroicons/react/24/outline';
 import { fetchDashboardStats } from '../../store/slices/adminSlice';
 import LoadingSpinner from '../../components/common/LoadingSpinner';
@@ -28,10 +29,14 @@ const Dashboard = () => {
     // Navigate to analytics page
     navigate('/admin/analytics');
   };
-
   const handleManageUsers = () => {
     // Navigate to users page
     navigate('/admin/users');
+  };
+
+  const handleManageCoupons = () => {
+    // Navigate to coupons page
+    navigate('/admin/coupons');
   };
   if (isLoading && !dashboardStats) {
     return (
@@ -178,8 +183,7 @@ const Dashboard = () => {
         transition={{ duration: 0.6, delay: 0.5 }}
         className="mt-8 bg-white rounded-lg shadow-sm border border-gray-200 p-6"
       >
-        <h2 className="text-lg font-semibold text-gray-900 mb-4">Quick Actions</h2>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <h2 className="text-lg font-semibold text-gray-900 mb-4">Quick Actions</h2>        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
           <button 
             onClick={handleAddProduct}
             className="flex items-center justify-center px-4 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
@@ -200,6 +204,13 @@ const Dashboard = () => {
           >
             <UsersIcon className="h-5 w-5 mr-2" />
             Manage Users
+          </button>
+          <button 
+            onClick={handleManageCoupons}
+            className="flex items-center justify-center px-4 py-3 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition-colors"
+          >
+            <ReceiptPercentIcon className="h-5 w-5 mr-2" />
+            Manage Coupons
           </button>
         </div>
       </motion.div>

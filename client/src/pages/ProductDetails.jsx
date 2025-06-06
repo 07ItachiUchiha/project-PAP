@@ -11,20 +11,37 @@ import { addToCart, addToLocalCart } from '../store/slices/cartSlice';
 import { addToWishlist, removeFromWishlist } from '../store/slices/wishlistSlice';
 import { fetchProductById } from '../store/slices/productSlice';
 import LoadingSpinner from '../components/common/LoadingSpinner';
+import ReviewSummary from '../components/product/ReviewSummary';
+import ReviewCard from '../components/product/ReviewCard';
+import ReviewForm from '../components/product/ReviewForm';
+import { getProductReviews, getReviewStats, canUserReview } from '../api/reviewAPI';
 
 const ProductDetails = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const isMounted = useRef(false);
-  
-  // Component state
+    // Component state
   const [product, setProduct] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [quantity, setQuantity] = useState(1);
   const [selectedImage, setSelectedImage] = useState(0);
   const [inWishlist, setInWishlist] = useState(false);
+  
+  // Review state
+  const [reviews, setReviews] = useState([]);
+  const [reviewStats, setReviewStats] = useState({
+    totalReviews: 0,
+    averageRating: 0,
+    distribution: { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 },
+    percentages: { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 }
+  });
+  const [canReview, setCanReview] = useState(false);
+  const [reviewFormOpen, setReviewFormOpen] = useState(false);
+  const [editingReview, setEditingReview] = useState(null);
+  const [reviewsLoading, setReviewsLoading] = useState(false);
+  const [reviewOrderId, setReviewOrderId] = useState(null);
   
   // Selectors
   const isAuthenticated = useSelector(state => state.auth.isAuthenticated);
@@ -155,10 +172,102 @@ const ProductDetails = () => {
         })
         .catch(error => {
           toast.error(error || 'Failed to add to wishlist');
-        });
-    }
+        });    }
   };
   
+  // Load reviews when product is loaded
+  useEffect(() => {
+    if (!product?._id) return;
+    
+    const loadReviews = async () => {
+      setReviewsLoading(true);
+      try {
+        const [reviewsData, statsData] = await Promise.all([
+          getProductReviews(product._id, { limit: 10 }),
+          getReviewStats(product._id)
+        ]);
+        
+        setReviews(reviewsData.data.reviews);
+        setReviewStats(statsData.data);
+      } catch (error) {
+        console.error('Error loading reviews:', error);
+      } finally {
+        setReviewsLoading(false);
+      }
+    };
+    
+    loadReviews();
+  }, [product?._id]);
+  
+  // Check if user can review
+  useEffect(() => {
+    if (!product?._id || !isAuthenticated) return;
+    
+    const checkReviewEligibility = async () => {
+      try {
+        const response = await canUserReview(product._id);
+        setCanReview(response.data.canReview);
+        if (response.data.orderId) {
+          setReviewOrderId(response.data.orderId);
+        }
+      } catch (error) {
+        console.error('Error checking review eligibility:', error);
+      }
+    };
+    
+    checkReviewEligibility();
+  }, [product?._id, isAuthenticated]);
+  
+  // Review handlers
+  const handleWriteReview = () => {
+    setEditingReview(null);
+    setReviewFormOpen(true);
+  };
+  
+  const handleEditReview = (review) => {
+    setEditingReview(review);
+    setReviewFormOpen(true);
+  };
+  
+  const handleReviewSuccess = () => {
+    setReviewFormOpen(false);
+    setEditingReview(null);
+    // Reload reviews
+    if (product?._id) {
+      Promise.all([
+        getProductReviews(product._id, { limit: 10 }),
+        getReviewStats(product._id)
+      ]).then(([reviewsData, statsData]) => {
+        setReviews(reviewsData.data.reviews);
+        setReviewStats(statsData.data);
+      }).catch(error => {
+        console.error('Error reloading reviews:', error);
+      });
+    }
+    toast.success(editingReview ? 'Review updated successfully!' : 'Review submitted successfully!');
+  };
+  
+  const handleReviewDelete = (reviewId) => {
+    setReviews(prev => prev.filter(review => review._id !== reviewId));
+    toast.success('Review deleted successfully!');
+  };
+  
+  const handleHelpfulUpdate = (reviewId, isHelpful) => {
+    setReviews(prev => 
+      prev.map(review => 
+        review._id === reviewId 
+          ? { 
+              ...review, 
+              helpful: {
+                ...review.helpful,
+                count: isHelpful ? review.helpful.count + 1 : review.helpful.count - 1
+              }
+            }
+          : review
+      )
+    );
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -401,12 +510,80 @@ const ProductDetails = () => {
                       </div>
                     )}
                   </div>
+                </div>              )}
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      {/* Reviews Section */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        <div className="grid lg:grid-cols-3 gap-8">
+          {/* Review Summary */}
+          <div className="lg:col-span-1">
+            <ReviewSummary
+              stats={reviewStats}
+              onWriteReview={handleWriteReview}
+              canWriteReview={canReview}
+            />
+          </div>
+          
+          {/* Reviews List */}
+          <div className="lg:col-span-2">
+            <div className="space-y-6">
+              <div className="flex items-center justify-between">
+                <h3 className="text-lg font-medium text-gray-900">
+                  Reviews ({reviewStats.totalReviews})
+                </h3>
+                
+                {/* Filter/Sort controls can be added here */}
+              </div>
+              
+              {reviewsLoading ? (
+                <div className="flex justify-center py-8">
+                  <LoadingSpinner />
+                </div>
+              ) : reviews.length > 0 ? (
+                <div className="space-y-6">
+                  {reviews.map((review) => (
+                    <ReviewCard
+                      key={review._id}
+                      review={review}
+                      onEdit={handleEditReview}
+                      onDelete={handleReviewDelete}
+                      onHelpfulUpdate={handleHelpfulUpdate}
+                      canEdit={isAuthenticated && review.user?._id === isAuthenticated?.user?.id}
+                      canDelete={isAuthenticated && review.user?._id === isAuthenticated?.user?.id}
+                    />
+                  ))}
+                </div>
+              ) : (
+                <div className="text-center py-12 bg-gray-50 rounded-lg">
+                  <p className="text-gray-500 mb-4">No reviews yet</p>
+                  {canReview && (
+                    <button
+                      onClick={handleWriteReview}
+                      className="text-green-600 hover:text-green-700 font-medium"
+                    >
+                      Be the first to write a review
+                    </button>
+                  )}
                 </div>
               )}
             </div>
           </div>
         </div>
       </div>
+      
+      {/* Review Form Modal */}
+      <ReviewForm
+        productId={product._id}
+        orderId={reviewOrderId}
+        existingReview={editingReview}
+        onSuccess={handleReviewSuccess}
+        onCancel={() => setReviewFormOpen(false)}
+        isOpen={reviewFormOpen}
+      />
     </div>
   );
 };

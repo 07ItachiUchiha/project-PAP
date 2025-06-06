@@ -3,6 +3,7 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { ArrowRightIcon, ShoppingBagIcon, HeartIcon, TruckIcon } from '@heroicons/react/24/outline';
+import HeroBanner from '../components/common/HeroBanner';
 
 const Home = () => {
   const features = [
@@ -54,64 +55,12 @@ const Home = () => {
       image: "https://images.unsplash.com/photo-1583062097503-6d9b766f723b?w=400",
       description: "Professional gardening equipment",
       link: "/shop?category=tools",
-    },
-  ];
+    },  ];
+
   return (
     <div className="min-h-screen">
-      {/* Hero Section */}
-      <section className="relative bg-gradient-to-br from-green-50 to-green-100 py-20 overflow-hidden">
-        <div className="absolute inset-0 opacity-30">
-          <div className="w-full h-full bg-green-200 opacity-20 bg-[length:20px_20px] bg-[radial-gradient(circle,#22c55e_1px,transparent_1px)]"></div>
-        </div>
-        
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center">
-            <motion.h1 
-              initial={{ opacity: 0, y: 30 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8 }}
-              className="text-4xl md:text-6xl font-bold text-gray-900 mb-6"
-            >
-              Bring Nature 
-              <span className="text-green-600"> Home</span>
-            </motion.h1>
-            
-            <motion.p 
-              initial={{ opacity: 0, y: 30 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8, delay: 0.2 }}
-              className="text-xl text-gray-600 mb-8 max-w-2xl mx-auto"
-            >
-              Discover premium plants, gardening tools, and organic vegetables. 
-              Transform your space into a green paradise.
-            </motion.p>
-            
-            <motion.div 
-              initial={{ opacity: 0, y: 30 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8, delay: 0.4 }}
-              className="flex flex-col sm:flex-row gap-4 justify-center"
-            >
-              <Link 
-                to="/shop"
-                className="inline-flex items-center px-8 py-4 bg-green-600 text-white font-semibold rounded-full hover:bg-green-700 transition-colors duration-300 group"
-                aria-label="Shop for plants"
-              >
-                Shop Now
-                <ArrowRightIcon className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
-              </Link>
-              
-              <Link 
-                to="/organic"
-                className="inline-flex items-center px-8 py-4 border-2 border-green-600 text-green-600 font-semibold rounded-full hover:bg-green-600 hover:text-white transition-colors duration-300"
-                aria-label="Explore organic vegetables"
-              >
-                Organic Vegetables
-              </Link>
-            </motion.div>
-          </div>
-        </div>
-      </section>
+      {/* Hero Banner Slider */}
+      <HeroBanner />
 
       {/* Features Section */}
       <section className="py-20 bg-white">

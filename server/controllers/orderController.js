@@ -17,7 +17,9 @@ const createOrder = async (req, res, next) => {
       taxPrice,
       shippingPrice,
       totalPrice,
-      orderItems
+      orderItems,
+      discountPrice = 0,
+      appliedCoupons = []
     } = req.body;
 
     if (!orderItems || orderItems.length === 0) {
@@ -78,13 +80,20 @@ const createOrder = async (req, res, next) => {
       itemsPrice,
       taxPrice,
       shippingPrice,
+      discount: discountPrice,
+      appliedCoupons,
       totalPrice
-    });
-
-    // Clear user's cart after successful order
+    });    // Clear user's cart after successful order
     await Cart.findOneAndUpdate(
       { user: req.user.id },
-      { items: [], discount: 0 }
+      { 
+        items: [], 
+        appliedCoupons: [],
+        subtotal: 0,
+        totalDiscount: 0,
+        finalAmount: 0,
+        discount: 0 
+      }
     );
 
     // Send order confirmation email

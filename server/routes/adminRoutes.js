@@ -22,6 +22,17 @@ const {
   updateOrderStatus
 } = require('../controllers/orderController');
 
+// Import coupon controller for admin coupon management
+const {
+  createCoupon,
+  getAllCoupons,
+  getCoupon,
+  updateCoupon,
+  deleteCoupon,
+  getCouponStats,
+  bulkOperations
+} = require('../controllers/couponController');
+
 const { protect, authorize } = require('../middlewares/auth');
 
 const router = express.Router();
@@ -47,6 +58,15 @@ router.delete('/products/:id', deleteProduct);
 // Order Management (Admin version)
 router.get('/orders', getOrders);
 router.put('/orders/:id/status', updateOrderStatus);
+
+// Coupon Management (Admin version)
+router.get('/coupons', getAllCoupons);
+router.post('/coupons', createCoupon);
+router.get('/coupons/:id', getCoupon);
+router.put('/coupons/:id', updateCoupon);
+router.delete('/coupons/:id', deleteCoupon);
+router.get('/coupons/:id/stats', getCouponStats);
+router.post('/coupons/bulk', bulkOperations);
 
 // Analytics
 router.get('/analytics/sales', getSalesAnalytics);

@@ -38,8 +38,7 @@ const productSchema = new mongoose.Schema({
       'gifts',
       'accessories'
     ]
-  },
-  type: {
+  },  type: {
     type: String,
     required: [true, 'Please select a type'],
     enum: [
@@ -47,6 +46,7 @@ const productSchema = new mongoose.Schema({
       'indoor-plants',
       'fruit-plants',
       'flowering-plants',
+      'ornamental-plants', // Added missing enum value
       'herbs',
       'succulents',
       'gardening-tools',
@@ -116,10 +116,9 @@ const productSchema = new mongoose.Schema({
   plantingSeasons: [{
     type: String,
     enum: ['spring', 'summer', 'monsoon', 'autumn', 'winter', 'year-round']
-  }],
-  sunlightRequirement: {
+  }],  sunlightRequirement: {
     type: String,
-    enum: ['full-sun', 'partial-sun', 'shade', 'indirect-light']
+    enum: ['full-sun', 'partial-sun', 'shade', 'indirect-light', 'indoor'] // Added 'indoor' option
   },
   wateringFrequency: {
     type: String,
@@ -143,8 +142,7 @@ const productSchema = new mongoose.Schema({
   isActive: {
     type: Boolean,
     default: true
-  },
-  ratings: {
+  },  ratings: {
     average: {
       type: Number,
       default: 0,
@@ -154,6 +152,13 @@ const productSchema = new mongoose.Schema({
     count: {
       type: Number,
       default: 0
+    },
+    distribution: {
+      1: { type: Number, default: 0 },
+      2: { type: Number, default: 0 },
+      3: { type: Number, default: 0 },
+      4: { type: Number, default: 0 },
+      5: { type: Number, default: 0 }
     }
   },
   reviews: [{

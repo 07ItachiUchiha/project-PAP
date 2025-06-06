@@ -1,5 +1,6 @@
 import React, { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
+import { Link } from 'react-router-dom';
 // eslint-disable-next-line no-unused-vars
 import { motion } from 'framer-motion';
 import { ShoppingBagIcon, ClockIcon, CheckCircleIcon, XCircleIcon } from '@heroicons/react/24/outline';
@@ -55,10 +56,19 @@ const Orders = () => {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
-        >
-          <div className="mb-8">
-            <h1 className="text-3xl font-bold text-gray-900">My Orders</h1>
-            <p className="text-gray-600">Track and manage your plant orders</p>
+        >          <div className="mb-8">
+            <div className="flex justify-between items-center">
+              <div>
+                <h1 className="text-3xl font-bold text-gray-900">My Orders</h1>
+                <p className="text-gray-600">Track and manage your plant orders</p>
+              </div>
+              <Link
+                to="/returns"
+                className="bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700 transition-colors"
+              >
+                View Returns
+              </Link>
+            </div>
           </div>
 
           {orders && orders.length > 0 ? (
@@ -70,8 +80,7 @@ const Orders = () => {
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.4 }}
                   className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden"
-                >
-                  {/* Order Header */}
+                >                  {/* Order Header */}
                   <div className="px-6 py-4 bg-gray-50 border-b border-gray-200">
                     <div className="flex items-center justify-between">
                       <div className="flex items-center space-x-4">
@@ -94,6 +103,23 @@ const Orders = () => {
                         </div>
                       </div>
                     </div>
+                    
+                    {/* Return Button for Delivered Orders */}
+                    {order.status.toLowerCase() === 'delivered' && (
+                      <div className="mt-4 p-3 bg-green-50 rounded-lg">
+                        <div className="flex items-center justify-between">
+                          <p className="text-sm text-green-700">
+                            Order delivered! You can return items within 30 days.
+                          </p>
+                          <Link
+                            to={`/returns/create/${order._id}`}
+                            className="text-sm bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700 transition-colors"
+                          >
+                            Create Return
+                          </Link>
+                        </div>
+                      </div>
+                    )}
                   </div>
 
                   {/* Order Items */}
@@ -117,8 +143,7 @@ const Orders = () => {
                           <div className="flex-1">
                             <h4 className="font-medium text-gray-900">{item.product?.name || 'Product'}</h4>
                             <p className="text-sm text-gray-600">Quantity: {item.quantity}</p>
-                          </div>
-                          <div className="text-right">
+                          </div>                          <div className="text-right">
                             <p className="font-medium text-gray-900">₹{item.price}</p>
                           </div>
                         </div>

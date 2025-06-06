@@ -86,12 +86,23 @@ const rateLimits = {
     30, // 30 searches per minute
     'Too many search requests, please slow down'
   ),
-
   // Order creation rate limit
   orders: createRateLimit(
     60 * 60 * 1000, // 1 hour
     10, // 10 orders per hour
     'Too many order attempts, please try again later'
+  ),  // Cart and coupon rate limit (more lenient for smooth user experience)
+  cart: createRateLimit(
+    1 * 60 * 1000, // 1 minute
+    100, // 100 requests per minute (increased from 50)
+    'Too many cart requests, please slow down'
+  ),
+
+  // Specific coupon rate limit (very generous to prevent loop issues)
+  coupons: createRateLimit(
+    1 * 60 * 1000, // 1 minute
+    150, // 150 requests per minute
+    'Too many coupon requests, please slow down'
   )
 };
 

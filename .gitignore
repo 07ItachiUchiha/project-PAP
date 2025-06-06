@@ -77,7 +77,4 @@ public/uploads/
 # Optional coverage directory
 .nyc_output
 
-RESOLUTION-SUMMARY.md
-Roadmap.md
-STATUS.md
-test-frontend-backend.js
+NewFeatures.md

@@ -4,7 +4,9 @@ import productSlice from './slices/productSlice';
 import cartSlice from './slices/cartSlice';
 import orderSlice from './slices/orderSlice';
 import adminSlice from './slices/adminSlice';
+import adminCouponsSlice from './slices/adminCouponsSlice';
 import wishlistSlice from './slices/wishlistSlice';
+import returnSlice from './slices/returnSlice';
 
 export const store = configureStore({
   reducer: {
@@ -13,7 +15,9 @@ export const store = configureStore({
     cart: cartSlice,
     orders: orderSlice,
     admin: adminSlice,
+    adminCoupons: adminCouponsSlice,
     wishlist: wishlistSlice,
+    returns: returnSlice,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({

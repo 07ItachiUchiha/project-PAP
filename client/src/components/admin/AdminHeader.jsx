@@ -7,12 +7,12 @@ import { BellIcon, CogIcon } from '@heroicons/react/24/outline';
 const AdminHeader = () => {
   const location = useLocation();
   const path = location.pathname;
-  
-  // Determine page title based on current path
+    // Determine page title based on current path
   const getPageTitle = () => {
     if (path === '/admin') return 'Dashboard';
     if (path === '/admin/products') return 'Products Management';
     if (path === '/admin/orders') return 'Orders Management';
+    if (path === '/admin/coupons') return 'Coupons Management';
     if (path === '/admin/users') return 'User Management';
     if (path === '/admin/analytics') return 'Analytics';
     return 'Admin Panel';
