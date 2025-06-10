@@ -30,11 +30,11 @@ const getSampleProducts = (adminUserId) => [
     images: [
       {
         public_id: "tomatoes_1",
-        url: "https://images.unsplash.com/photo-1546470427-e26264be0b5d?w=400"
+        url: "https://images.unsplash.com/photo-1546470427-e26264be0b5d?w=400&h=400&fit=crop&auto=format"
       },
       {
         public_id: "tomatoes_2", 
-        url: "https://images.unsplash.com/photo-1592924357228-91a4daadcfea?w=400"
+        url: "https://images.unsplash.com/photo-1592924357228-91a4daadcfea?w=400&h=400&fit=crop&auto=format"
       }
     ],
     stock: 50,

@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+<head><title>Icon Generator</title></head>
+<body>
+  <canvas id="canvas" width="128" height="128"></canvas>
+  <script>
+    const canvas = document.getElementById('canvas');
+    const ctx = canvas.getContext('2d');
+    
+    // Create gradient
+    const gradient = ctx.createLinearGradient(0, 0, 128, 128);
+    gradient.addColorStop(0, '#16a34a');
+    gradient.addColorStop(1, '#22c55e');
+    
+    // Fill background
+    ctx.fillStyle = gradient;
+    ctx.fillRect(0, 0, 128, 128);
+    
+    // Add plant icon (simplified)
+    ctx.fillStyle = 'white';
+    ctx.font = '10.24px Arial';
+    ctx.textAlign = 'center';
+    ctx.fillText('🌱', 64, 76.8);
+    ctx.fillText('PlantPAP', 64, 108.8);
+    
+    // Export as PNG
+    const link = document.createElement('a');
+    link.download = 'icon-128x128.png';
+    link.href = canvas.toDataURL('image/png');
+    link.click();
+  </script>
+</body>
+</html>

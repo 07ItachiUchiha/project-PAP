@@ -13,7 +13,9 @@ import {
   LogOut,
   Settings,
   Package,
-  RotateCcw
+  RotateCcw,
+  Leaf,
+  Sparkles
 } from 'lucide-react';
 import { logoutUser } from '../../store/slices/authSlice';
 import { toast } from 'react-toastify';
@@ -36,6 +38,7 @@ const Navbar = () => {
       setSearchTerm('');
     }
   };
+
   const handleLogout = async () => {
     try {
       await dispatch(logoutUser()).unwrap();
@@ -54,94 +57,124 @@ const Navbar = () => {
   ];
 
   return (
-    <nav className="bg-white shadow-lg sticky top-0 z-50">
+    <motion.nav 
+      initial={{ y: -100 }}
+      animate={{ y: 0 }}
+      transition={{ duration: 0.6 }}
+      className="bg-white/95 backdrop-blur-md shadow-nature sticky top-0 z-50 border-b border-sage-100"
+    >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between items-center h-16">
-          {/* Logo */}
-          <Link to="/" className="flex items-center space-x-2">
+        <div className="flex justify-between items-center h-20">
+          {/* Enhanced Logo */}
+          <Link to="/" className="flex items-center space-x-3 group">
             <motion.div
-              whileHover={{ scale: 1.05 }}
+              whileHover={{ scale: 1.1, rotate: 5 }}
               whileTap={{ scale: 0.95 }}
-              className="text-2xl font-bold text-primary-600"
+              className="flex items-center space-x-2"
             >
-              🌱 PlantShop
+              <div className="relative">
+                <Leaf className="h-8 w-8 text-forest-700 group-hover:text-sage-600 transition-colors duration-300" />
+                <Sparkles className="absolute -top-1 -right-1 h-4 w-4 text-terracotta-500 group-hover:animate-pulse" />
+              </div>
+              <span className="text-2xl font-display font-bold bg-gradient-to-r from-forest-800 to-sage-600 bg-clip-text text-transparent">
+                PlantPAP
+              </span>
             </motion.div>
           </Link>
 
-          {/* Desktop Navigation */}
-          <div className="hidden md:flex items-center space-x-8">
+          {/* Enhanced Desktop Navigation */}
+          <div className="hidden md:flex items-center space-x-2">
             {navLinks.map((link) => (
-              <Link
-                key={link.to}
-                to={link.to}
-                className="text-gray-700 hover:text-primary-600 px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200"
-              >
-                {link.label}
-              </Link>
+              <motion.div key={link.to} whileHover={{ scale: 1.05 }}>
+                <Link
+                  to={link.to}
+                  className="text-charcoal-700 hover:text-forest-700 px-4 py-2 rounded-full text-sm font-medium transition-all duration-300 hover:bg-sage-50 relative group"
+                >
+                  {link.label}
+                  <span className="absolute bottom-0 left-1/2 w-0 h-0.5 bg-gradient-to-r from-forest-700 to-sage-600 group-hover:w-full group-hover:left-0 transition-all duration-300"></span>
+                </Link>
+              </motion.div>
             ))}
           </div>
 
-          {/* Search Bar */}
+          {/* Enhanced Search Bar */}
           <div className="hidden md:flex flex-1 max-w-lg mx-8">
             <form onSubmit={handleSearch} className="w-full">
-              <div className="relative">
+              <div className="relative group">
                 <input
                   type="text"
                   placeholder="Search plants, tools, organic products..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                  className="w-full pl-12 pr-4 py-3 bg-cream-50 border border-sage-200 rounded-full focus:ring-2 focus:ring-sage-300 focus:border-sage-400 focus:bg-white transition-all duration-300 text-charcoal-700 placeholder-charcoal-400"
                 />
-                <Search className="absolute left-3 top-2.5 h-5 w-5 text-gray-400" />
+                <Search className="absolute left-4 top-3.5 h-5 w-5 text-sage-500 group-hover:text-forest-600 transition-colors" />
+                <motion.button
+                  type="submit"
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  className="absolute right-2 top-1.5 p-2 bg-forest-700 text-white rounded-full hover:bg-forest-600 transition-colors duration-300"
+                >
+                  <Search className="h-4 w-4" />
+                </motion.button>
               </div>
             </form>
           </div>
 
-          {/* Right side buttons */}
-          <div className="hidden md:flex items-center space-x-4">
-            {/* Cart */}
-            <Link to="/cart" className="relative p-2 text-gray-700 hover:text-primary-600">
-              <ShoppingCart className="h-6 w-6" />
-              {totalQuantity > 0 && (
-                <motion.span
-                  initial={{ scale: 0 }}
-                  animate={{ scale: 1 }}
-                  className="absolute -top-1 -right-1 bg-primary-600 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center"
-                >
-                  {totalQuantity}
-                </motion.span>
-              )}
-            </Link>
-
-            {/* Wishlist */}
-            {isAuthenticated && (
-              <Link to="/wishlist" className="relative p-2 text-gray-700 hover:text-primary-600">
-                <Heart className="h-6 w-6" />
+          {/* Enhanced Right side buttons */}
+          <div className="hidden md:flex items-center space-x-3">
+            {/* Enhanced Cart */}
+            <motion.div whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.95 }}>
+              <Link to="/cart" className="relative p-3 text-charcoal-700 hover:text-forest-700 hover:bg-sage-50 rounded-full transition-all duration-300 group">
+                <ShoppingCart className="h-6 w-6" />
+                {totalQuantity > 0 && (
+                  <motion.span
+                    initial={{ scale: 0 }}
+                    animate={{ scale: 1 }}
+                    className="absolute -top-1 -right-1 bg-gradient-to-r from-terracotta-600 to-terracotta-500 text-white text-xs rounded-full h-6 w-6 flex items-center justify-center font-medium shadow-soft"
+                  >
+                    {totalQuantity}
+                  </motion.span>
+                )}
               </Link>
+            </motion.div>
+
+            {/* Enhanced Wishlist */}
+            {isAuthenticated && (
+              <motion.div whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.95 }}>
+                <Link to="/wishlist" className="relative p-3 text-charcoal-700 hover:text-forest-700 hover:bg-sage-50 rounded-full transition-all duration-300 group">
+                  <Heart className="h-6 w-6 group-hover:fill-current group-hover:text-terracotta-500" />
+                </Link>
+              </motion.div>
             )}
 
-            {/* User Menu */}
+            {/* Enhanced User Menu */}
             {isAuthenticated ? (
               <div className="relative">
-                <button
+                <motion.button
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
                   onClick={() => setUserMenuOpen(!userMenuOpen)}
-                  className="flex items-center space-x-2 p-2 text-gray-700 hover:text-primary-600"
+                  className="flex items-center space-x-2 p-3 text-charcoal-700 hover:text-forest-700 hover:bg-sage-50 rounded-full transition-all duration-300 group"
                 >
-                  <User className="h-6 w-6" />
-                  <span className="text-sm font-medium">{user?.name}</span>
-                </button>
+                  <div className="w-8 h-8 bg-gradient-to-br from-forest-700 to-sage-600 rounded-full flex items-center justify-center text-white font-medium">
+                    {user?.name?.charAt(0)?.toUpperCase()}
+                  </div>
+                  <span className="text-sm font-medium hidden lg:block">{user?.name}</span>
+                </motion.button>
 
                 <AnimatePresence>
                   {userMenuOpen && (
                     <motion.div
-                      initial={{ opacity: 0, y: -10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0, y: -10 }}
-                      className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-50"
+                      initial={{ opacity: 0, y: -10, scale: 0.95 }}
+                      animate={{ opacity: 1, y: 0, scale: 1 }}
+                      exit={{ opacity: 0, y: -10, scale: 0.95 }}
+                      transition={{ duration: 0.2 }}
+                      className="absolute right-0 mt-2 w-56 bg-white/95 backdrop-blur-md rounded-3xl shadow-nature border border-sage-100 py-2 z-50"
                     >
                       <Link
                         to="/profile"
-                        className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center space-x-2"
+                        className="flex items-center space-x-3 px-6 py-3 text-sm text-charcoal-700 hover:text-forest-700 hover:bg-sage-50 transition-all duration-300"
                         onClick={() => setUserMenuOpen(false)}
                       >
                         <User className="h-4 w-4" />
@@ -149,14 +182,15 @@ const Navbar = () => {
                       </Link>
                       <Link
                         to="/orders"
-                        className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center space-x-2"
+                        className="flex items-center space-x-3 px-6 py-3 text-sm text-charcoal-700 hover:text-forest-700 hover:bg-sage-50 transition-all duration-300"
                         onClick={() => setUserMenuOpen(false)}
                       >
                         <Package className="h-4 w-4" />
                         <span>Orders</span>
-                      </Link>                      <Link
+                      </Link>
+                      <Link
                         to="/wishlist"
-                        className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center space-x-2"
+                        className="flex items-center space-x-3 px-6 py-3 text-sm text-charcoal-700 hover:text-forest-700 hover:bg-sage-50 transition-all duration-300"
                         onClick={() => setUserMenuOpen(false)}
                       >
                         <Heart className="h-4 w-4" />
@@ -164,7 +198,7 @@ const Navbar = () => {
                       </Link>
                       <Link
                         to="/returns"
-                        className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center space-x-2"
+                        className="flex items-center space-x-3 px-6 py-3 text-sm text-charcoal-700 hover:text-forest-700 hover:bg-sage-50 transition-all duration-300"
                         onClick={() => setUserMenuOpen(false)}
                       >
                         <RotateCcw className="h-4 w-4" />
@@ -173,75 +207,81 @@ const Navbar = () => {
                       {(user?.role === 'admin' || user?.role === 'seller') && (
                         <Link
                           to="/admin"
-                          className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center space-x-2"
+                          className="flex items-center space-x-3 px-6 py-3 text-sm text-charcoal-700 hover:text-forest-700 hover:bg-sage-50 transition-all duration-300"
                           onClick={() => setUserMenuOpen(false)}
                         >
                           <Settings className="h-4 w-4" />
                           <span>Dashboard</span>
                         </Link>
                       )}
-                      <button
-                        onClick={handleLogout}
-                        className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center space-x-2"
-                      >
-                        <LogOut className="h-4 w-4" />
-                        <span>Logout</span>
-                      </button>
+                      <div className="border-t border-sage-100 mt-2 pt-2">
+                        <button
+                          onClick={handleLogout}
+                          className="flex items-center space-x-3 w-full px-6 py-3 text-sm text-charcoal-700 hover:text-terracotta-600 hover:bg-terracotta-50 transition-all duration-300"
+                        >
+                          <LogOut className="h-4 w-4" />
+                          <span>Logout</span>
+                        </button>
+                      </div>
                     </motion.div>
                   )}
                 </AnimatePresence>
               </div>
-            ) : (
-              <div className="flex items-center space-x-2">
+            ) : (                <div className="flex items-center space-x-3">
                 <Link
                   to="/login"
-                  className="text-gray-700 hover:text-primary-600 px-3 py-2 rounded-md text-sm font-medium"
+                  className="text-charcoal-700 hover:text-forest-700 px-4 py-2 rounded-full text-sm font-medium transition-all duration-300 hover:bg-sage-50"
                 >
                   Login
                 </Link>
-                <Link
-                  to="/register"
-                  className="bg-primary-600 text-white hover:bg-primary-700 px-4 py-2 rounded-md text-sm font-medium transition-colors"
-                >
-                  Register
-                </Link>
+                <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+                  <Link
+                    to="/register"
+                    className="btn-nature-secondary"
+                  >
+                    Register
+                  </Link>
+                </motion.div>
               </div>
             )}
           </div>
 
           {/* Mobile menu button */}
           <div className="md:hidden">
-            <button
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
               onClick={() => setIsOpen(!isOpen)}
-              className="p-2 rounded-md text-gray-700 hover:text-primary-600 focus:outline-none"
+              className="p-2 rounded-full text-charcoal-700 hover:text-forest-700 hover:bg-sage-50 focus:outline-none transition-all duration-300"
             >
               {isOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
-            </button>
+            </motion.button>
           </div>
         </div>
       </div>
 
-      {/* Mobile menu */}
+      {/* Enhanced Mobile menu */}
       <AnimatePresence>
         {isOpen && (
           <motion.div
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: 'auto' }}
             exit={{ opacity: 0, height: 0 }}
-            className="md:hidden bg-white border-t border-gray-200"
+            transition={{ duration: 0.3 }}
+            className="md:hidden bg-white/95 backdrop-blur-md border-t border-sage-100"
           >
-            <div className="px-2 pt-2 pb-3 space-y-1">
+            <div className="px-4 pt-4 pb-6 space-y-3">
               {/* Mobile Search */}
-              <form onSubmit={handleSearch} className="mb-4">
-                <div className="relative">
+              <form onSubmit={handleSearch} className="mb-6">
+                <div className="relative group">
                   <input
                     type="text"
-                    placeholder="Search..."
+                    placeholder="Search plants..."
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
-                    className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                    className="w-full pl-10 pr-4 py-3 bg-cream-50 border border-sage-200 rounded-full focus:ring-2 focus:ring-sage-300 focus:border-sage-400 focus:bg-white transition-all duration-300 text-charcoal-700"
                   />
-                  <Search className="absolute left-3 top-2.5 h-5 w-5 text-gray-400" />
+                  <Search className="absolute left-3 top-3.5 h-5 w-5 text-sage-500" />
                 </div>
               </form>
 
@@ -250,73 +290,67 @@ const Navbar = () => {
                 <Link
                   key={link.to}
                   to={link.to}
-                  className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-primary-600 hover:bg-gray-50"
+                  className="block px-4 py-3 rounded-xl text-base font-medium text-charcoal-700 hover:text-forest-700 hover:bg-sage-50 transition-all duration-300"
                   onClick={() => setIsOpen(false)}
                 >
                   {link.label}
                 </Link>
               ))}
 
-              {/* Mobile Cart */}
-              <Link
-                to="/cart"
-                className="flex items-center justify-between px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-primary-600 hover:bg-gray-50"
-                onClick={() => setIsOpen(false)}
-              >
-                <div className="flex items-center space-x-2">
-                  <ShoppingCart className="h-5 w-5" />
-                  <span>Cart</span>
-                </div>
-                {totalQuantity > 0 && (
-                  <span className="bg-primary-600 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
-                    {totalQuantity}
-                  </span>
-                )}
-              </Link>
-              
-              {/* Mobile Wishlist */}
-              {isAuthenticated && (
+              {/* Mobile Cart & Wishlist */}
+              <div className="flex items-center space-x-4 pt-4 border-t border-sage-100">
                 <Link
-                  to="/wishlist"
-                  className="flex items-center space-x-2 px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-primary-600 hover:bg-gray-50"
+                  to="/cart"
+                  className="flex items-center space-x-2 px-4 py-3 rounded-xl text-base font-medium text-charcoal-700 hover:text-forest-700 hover:bg-sage-50 transition-all duration-300 flex-1"
                   onClick={() => setIsOpen(false)}
                 >
-                  <Heart className="h-5 w-5" />
-                  <span>Wishlist</span>
+                  <div className="relative">
+                    <ShoppingCart className="h-5 w-5" />
+                    {totalQuantity > 0 && (
+                      <span className="absolute -top-1 -right-1 bg-terracotta-500 text-white text-xs rounded-full h-4 w-4 flex items-center justify-center">
+                        {totalQuantity}
+                      </span>
+                    )}
+                  </div>
+                  <span>Cart</span>
                 </Link>
-              )}
+                
+                {isAuthenticated && (
+                  <Link
+                    to="/wishlist"
+                    className="flex items-center space-x-2 px-4 py-3 rounded-xl text-base font-medium text-charcoal-700 hover:text-forest-700 hover:bg-sage-50 transition-all duration-300"
+                    onClick={() => setIsOpen(false)}
+                  >
+                    <Heart className="h-5 w-5" />
+                    <span>Wishlist</span>
+                  </Link>
+                )}
+              </div>
 
               {/* Mobile Auth */}
               {isAuthenticated ? (
-                <div className="border-t border-gray-200 pt-4">
-                  <div className="px-3 py-2 text-base font-medium text-gray-900">
-                    {user?.name}
+                <div className="border-t border-sage-100 pt-4 space-y-2">
+                  <div className="px-4 py-2 text-base font-semibold text-forest-700">
+                    Welcome, {user?.name}
                   </div>
                   <Link
                     to="/profile"
-                    className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-primary-600 hover:bg-gray-50"
+                    className="block px-4 py-3 rounded-xl text-base font-medium text-charcoal-700 hover:text-forest-700 hover:bg-sage-50 transition-all duration-300"
                     onClick={() => setIsOpen(false)}
                   >
                     Profile
                   </Link>
                   <Link
                     to="/orders"
-                    className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-primary-600 hover:bg-gray-50"
+                    className="block px-4 py-3 rounded-xl text-base font-medium text-charcoal-700 hover:text-forest-700 hover:bg-sage-50 transition-all duration-300"
                     onClick={() => setIsOpen(false)}
                   >
                     Orders
                   </Link>
-                  <Link
-                    to="/wishlist"
-                    className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-primary-600 hover:bg-gray-50"
-                    onClick={() => setIsOpen(false)}
-                  >
-                    Wishlist
-                  </Link>
                   {(user?.role === 'admin' || user?.role === 'seller') && (
                     <Link
                       to="/admin"
-                      className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-primary-600 hover:bg-gray-50"
+                      className="block px-4 py-3 rounded-xl text-base font-medium text-charcoal-700 hover:text-forest-700 hover:bg-sage-50 transition-all duration-300"
                       onClick={() => setIsOpen(false)}
                     >
                       Dashboard
@@ -324,23 +358,22 @@ const Navbar = () => {
                   )}
                   <button
                     onClick={handleLogout}
-                    className="block w-full text-left px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-primary-600 hover:bg-gray-50"
+                    className="block w-full text-left px-4 py-3 rounded-xl text-base font-medium text-charcoal-700 hover:text-terracotta-600 hover:bg-terracotta-50 transition-all duration-300"
                   >
                     Logout
                   </button>
                 </div>
-              ) : (
-                <div className="border-t border-gray-200 pt-4 space-y-1">
+              ) : (                <div className="border-t border-sage-100 pt-4 space-y-3">
                   <Link
                     to="/login"
-                    className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-primary-600 hover:bg-gray-50"
+                    className="block px-4 py-3 rounded-xl text-base font-medium text-center text-charcoal-700 hover:text-forest-700 hover:bg-sage-50 transition-all duration-300"
                     onClick={() => setIsOpen(false)}
                   >
                     Login
                   </Link>
                   <Link
                     to="/register"
-                    className="block px-3 py-2 rounded-md text-base font-medium bg-primary-600 text-white hover:bg-primary-700"
+                    className="block px-4 py-3 rounded-xl text-base font-medium text-center bg-gradient-to-r from-forest-700 to-sage-600 text-white hover:from-forest-600 hover:to-sage-500 transition-all duration-300"
                     onClick={() => setIsOpen(false)}
                   >
                     Register
@@ -351,7 +384,7 @@ const Navbar = () => {
           </motion.div>
         )}
       </AnimatePresence>
-    </nav>
+    </motion.nav>
   );
 };
 

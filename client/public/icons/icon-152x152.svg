@@ -1,0 +1,21 @@
+<svg width="152" height="152" viewBox="0 0 152 152" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="plantGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#16a34a;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#22c55e;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Background circle -->
+  <circle cx="76" cy="76" r="76" fill="url(#plantGradient)"/>
+  
+  <!-- Plant leaves -->
+  <path d="M45.6 106.39999999999999 Q30.400000000000002 60.800000000000004 60.800000000000004 45.6 Q76 76 45.6 106.39999999999999" fill="white" opacity="0.9"/>
+  <path d="M106.39999999999999 106.39999999999999 Q121.60000000000001 60.800000000000004 91.2 45.6 Q76 76 106.39999999999999 106.39999999999999" fill="white" opacity="0.9"/>
+  
+  <!-- Stem -->
+  <rect x="71.44" y="76" width="9.12" height="45.6" fill="white" opacity="0.8"/>
+  
+  <!-- PlantPAP text -->
+  <text x="76" y="136.8" text-anchor="middle" fill="white" font-family="Arial, sans-serif" font-size="12.16" font-weight="bold">PlantPAP</text>
+</svg>

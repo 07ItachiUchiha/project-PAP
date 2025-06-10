@@ -1,0 +1,38 @@
+<svg width="400" height="400" viewBox="0 0 400 400" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background gradient -->
+  <defs>
+    <linearGradient id="bgTool" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#f3f4f6;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#e5e7eb;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="toolMetal" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#94a3b8;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#64748b;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="toolHandle" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#92400e;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#78350f;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Background -->
+  <rect width="400" height="400" fill="url(#bgTool)"/>
+  
+  <!-- Shovel handle -->
+  <rect x="195" y="120" width="10" height="160" fill="url(#toolHandle)" opacity="0.9"/>
+  
+  <!-- Shovel blade -->
+  <path d="M200 120 Q170 110 150 140 Q170 170 200 160 Q230 170 250 140 Q230 110 200 120 Z" fill="url(#toolMetal)" opacity="0.9"/>
+  
+  <!-- Handle grip -->
+  <circle cx="200" cy="270" r="8" fill="#92400e" opacity="0.8"/>
+  <circle cx="200" cy="250" r="6" fill="#78350f" opacity="0.8"/>
+  <circle cx="200" cy="230" r="6" fill="#78350f" opacity="0.8"/>
+  
+  <!-- Decorative elements -->
+  <circle cx="200" cy="200" r="90" fill="none" stroke="#64748b" stroke-width="1" opacity="0.2"/>
+  <circle cx="200" cy="200" r="110" fill="none" stroke="#94a3b8" stroke-width="1" opacity="0.1"/>
+  
+  <!-- Garden Tools text -->
+  <text x="200" y="380" font-family="Arial, sans-serif" font-size="14" font-weight="bold" text-anchor="middle" fill="#64748b" opacity="0.6">Garden Tools</text>
+</svg>

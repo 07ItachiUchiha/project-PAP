@@ -29,7 +29,7 @@ const getSampleProducts = (adminUserId) => [
     type: "organic-vegetables",    images: [
       {
         filename: "tomatoes_1.jpg",
-        url: "https://images.unsplash.com/photo-1546470427-e26264be0b5d?w=400",
+        url: "https://images.unsplash.com/photo-1546470427-e26264be0b5d?w=400&h=400&fit=crop",
         originalName: "tomatoes.jpg",
         size: 12345
       }
@@ -53,7 +53,7 @@ const getSampleProducts = (adminUserId) => [
     type: "gardening-tools",    images: [
       {
         filename: "tools_1.jpg",
-        url: "https://images.unsplash.com/photo-1416879595882-3373a0480b5b?w=400",
+        url: "https://images.unsplash.com/photo-1416879595882-3373a0480b5b?w=400&h=400&fit=crop",
         originalName: "garden-tools.jpg",
         size: 15432
       }
@@ -76,7 +76,7 @@ const getSampleProducts = (adminUserId) => [
     type: "herbs",    images: [
       {
         filename: "basil_1.jpg",
-        url: "https://images.unsplash.com/photo-1618164435735-413d3b066c9a?w=400",
+        url: "https://images.unsplash.com/photo-1618164435735-413d3b066c9a?w=400&h=400&fit=crop",
         originalName: "basil-plant.jpg",
         size: 18765
       }

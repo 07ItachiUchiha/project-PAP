@@ -61,13 +61,15 @@ const initialState = {
     priceRange: [0, 10000],
     sortBy: 'name',
     sortOrder: 'asc',
-  },
-  pagination: {
+  },  pagination: {
     page: 1,
     limit: 12,
     total: 0,
     totalPages: 0,
   },
+  currentPage: 1,
+  totalPages: 0,
+  loading: false,
   isLoading: false,
   isSearchLoading: false,
   error: null,
@@ -101,23 +103,27 @@ const productSlice = createSlice({
     clearSearchResults: (state) => {
       state.searchResults = [];
     },
-  },
-  extraReducers: (builder) => {
+  },  extraReducers: (builder) => {
     builder
       // Fetch Products
       .addCase(fetchProducts.pending, (state) => {
         state.isLoading = true;
+        state.loading = true;
         state.error = null;
       })
       .addCase(fetchProducts.fulfilled, (state, action) => {
         state.isLoading = false;
+        state.loading = false;
         state.products = action.payload.products;
+        const pagination = action.payload.pagination || {};
         state.pagination = {
-          page: action.payload.page,
-          limit: action.payload.limit,
-          total: action.payload.total,
-          totalPages: action.payload.totalPages,
+          page: action.payload.page || pagination.page || 1,
+          limit: action.payload.limit || pagination.limit || 12,
+          total: action.payload.total || 0,
+          totalPages: Math.ceil((action.payload.total || 0) / (action.payload.limit || pagination.limit || 12)),
         };
+        state.currentPage = action.payload.page || pagination.page || 1;
+        state.totalPages = Math.ceil((action.payload.total || 0) / (action.payload.limit || pagination.limit || 12));
       })
       .addCase(fetchProducts.rejected, (state, action) => {
         state.isLoading = false;

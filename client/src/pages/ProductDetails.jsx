@@ -3,9 +3,7 @@ import { Link, useParams, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 // eslint-disable-next-line no-unused-vars
 import { motion } from 'framer-motion';
-import { HeartIcon, ShoppingCartIcon, ArrowLeftIcon, CheckIcon, ShieldCheckIcon, TruckIcon, XMarkIcon } from '@heroicons/react/24/outline';
-import { HeartIcon as HeartSolid } from '@heroicons/react/24/solid';
-import { StarIcon } from '@heroicons/react/24/solid';
+import { Heart, ShoppingCart, ArrowLeft, Check, ShieldCheck, Truck, X, Star } from 'lucide-react';
 import { toast } from 'react-toastify';
 import { addToCart, addToLocalCart } from '../store/slices/cartSlice';
 import { addToWishlist, removeFromWishlist } from '../store/slices/wishlistSlice';
@@ -281,9 +279,8 @@ const ProductDetails = () => {
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
           <h1 className="text-3xl font-bold mb-4">Product Not Found</h1>
-          <p className="text-red-600 mb-6">{error || 'Product not available'}</p>
-          <Link to="/shop" className="text-primary-600 hover:text-primary-700 flex items-center justify-center">
-            <ArrowLeftIcon className="h-5 w-5 mr-2" /> Back to Shop
+          <p className="text-red-600 mb-6">{error || 'Product not available'}</p>          <Link to="/shop" className="text-primary-600 hover:text-primary-700 flex items-center justify-center">
+            <ArrowLeft className="h-5 w-5 mr-2" /> Back to Shop
           </Link>
         </div>
       </div>
@@ -366,12 +363,11 @@ const ProductDetails = () => {
                   </span>
                 )}
               </div>
-              
-              {/* Ratings */}
+                {/* Ratings */}
               <div className="flex items-center mb-6">
                 <div className="flex">
                   {[0, 1, 2, 3, 4].map((rating) => (
-                    <StarIcon
+                    <Star
                       key={rating}
                       className={`h-5 w-5 ${
                         (product.ratings && product.ratings.average) > rating
@@ -393,12 +389,11 @@ const ProductDetails = () => {
               </div>
               
               {/* Stock Status */}
-              <div className="mb-6">
-                <div className="flex items-center">                  
+              <div className="mb-6">                <div className="flex items-center">                  
                   {product.stock > 0 ? (
-                    <CheckIcon className="h-5 w-5 text-green-600 mr-2" />
+                    <Check className="h-5 w-5 text-green-600 mr-2" />
                   ) : (
-                    <XMarkIcon className="h-5 w-5 text-red-600 mr-2" />
+                    <X className="h-5 w-5 text-red-600 mr-2" />
                   )}
                   <span className={`${product.stock > 0 ? 'text-green-600' : 'text-red-600'}`}>
                     {product.stock > 0 ? 'In Stock' : 'Out of Stock'}
@@ -446,9 +441,8 @@ const ProductDetails = () => {
                     product.stock > 0
                       ? 'bg-green-500 text-black hover:bg-green-600 hover:shadow-lg'
                       : 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                  }`}
-                >
-                  <ShoppingCartIcon className="h-5 w-5 mr-2" />
+                  }`}                >
+                  <ShoppingCart className="h-5 w-5 mr-2" />
                   Add to Cart
                 </motion.button>
                 
@@ -456,12 +450,11 @@ const ProductDetails = () => {
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
                   onClick={toggleWishlist}
-                  className="flex items-center justify-center px-4 py-3 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50"
-                >
+                  className="flex items-center justify-center px-4 py-3 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50"                >
                   {inWishlist ? (
-                    <HeartSolid className="h-5 w-5 text-red-500" />
+                    <Heart className="h-5 w-5 text-red-500 fill-current" />
                   ) : (
-                    <HeartIcon className="h-5 w-5" />
+                    <Heart className="h-5 w-5" />
                   )}
                 </motion.button>
               </div>
@@ -469,9 +462,8 @@ const ProductDetails = () => {
               {/* Product Info */}
               <div className="border-t border-gray-200 pt-4">
                 <div className="grid grid-cols-1 gap-4">
-                  {/* Shipping */}
-                  <div className="flex items-start">
-                    <TruckIcon className="h-5 w-5 text-gray-600 mr-3 mt-0.5" />
+                  {/* Shipping */}                  <div className="flex items-start">
+                    <Truck className="h-5 w-5 text-gray-600 mr-3 mt-0.5" />
                     <div>
                       <p className="font-medium text-gray-800">Free Shipping</p>
                       <p className="text-gray-600 text-sm">Delivery in 5-7 working days</p>
@@ -480,7 +472,7 @@ const ProductDetails = () => {
                   
                   {/* Returns */}
                   <div className="flex items-start">
-                    <ShieldCheckIcon className="h-5 w-5 text-gray-600 mr-3 mt-0.5" />
+                    <ShieldCheck className="h-5 w-5 text-gray-600 mr-3 mt-0.5" />
                     <div>
                       <p className="font-medium text-gray-800">7-Day Returns</p>
                       <p className="text-gray-600 text-sm">Shop with confidence</p>

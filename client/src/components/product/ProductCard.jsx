@@ -4,18 +4,31 @@ import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useDispatch, useSelector } from 'react-redux';
 import { 
-  HeartIcon as HeartOutline, 
-  ShoppingCartIcon,
-  StarIcon 
-} from '@heroicons/react/24/outline';
-import { HeartIcon as HeartSolid } from '@heroicons/react/24/solid';
+  Heart, 
+  ShoppingCart,
+  Star,
+  Leaf,
+  Eye,
+  Sparkles
+} from 'lucide-react';
 import { addToCart, addToLocalCart } from '../../store/slices/cartSlice';
 import { toast } from 'react-toastify';
+import OptimizedImage from '../common/OptimizedImage';
 
 const ProductCard = ({ product }) => {
   const dispatch = useDispatch();
   const { isAuthenticated } = useSelector((state) => state.auth);
   const [isWishlisted, setIsWishlisted] = React.useState(false);
+
+  const getProductPlaceholder = (product) => {
+    if (product.category?.includes('organic') || product.category?.includes('vegetable')) {
+      return '/images/products/placeholder-vegetable.svg';
+    } else if (product.category?.includes('tool')) {
+      return '/images/products/placeholder-tool.svg';
+    } else {
+      return '/images/products/placeholder-plant.svg';
+    }
+  };
 
   const handleAddToCart = async (e) => {
     e.preventDefault();
@@ -48,14 +61,13 @@ const ProductCard = ({ product }) => {
     setIsWishlisted(!isWishlisted);
     toast.success(isWishlisted ? 'Removed from wishlist' : 'Added to wishlist');
   };
-
   const renderStars = (rating) => {
     return Array.from({ length: 5 }, (_, index) => (
-      <StarIcon
+      <Star
         key={index}
         className={`h-4 w-4 ${
           index < Math.floor(rating) 
-            ? 'text-yellow-400 fill-current' 
+            ? 'text-terracotta-400 fill-current' 
             : 'text-gray-300'
         }`}
       />
@@ -66,100 +78,138 @@ const ProductCard = ({ product }) => {
   const discountPercentage = isOnSale 
     ? Math.round(((product.price - product.salePrice) / product.price) * 100)
     : 0;
-
   return (
     <motion.div
-      whileHover={{ y: -5 }}
-      transition={{ duration: 0.3 }}
-      className="group"
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      whileHover={{ y: -8, scale: 1.02 }}
+      transition={{ duration: 0.3, ease: "easeOut" }}
+      className="group relative"
     >
       <Link to={`/product/${product._id}`} className="block">
-        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-xl transition-shadow duration-300">
-          {/* Image Container */}
-          <div className="relative aspect-square overflow-hidden">            <img 
-              src={product.images?.[0]?.url || product.images?.[0] || '/placeholder-plant.jpg'} 
+        <div className="bg-white/80 backdrop-blur-sm rounded-3xl shadow-soft border border-sage-100/50 overflow-hidden hover:shadow-nature transition-all duration-500 relative">
+          {/* Decorative corner elements */}
+          <div className="absolute top-0 right-0 w-16 h-16 bg-gradient-to-bl from-sage-200/30 to-transparent rounded-bl-3xl"></div>
+          <div className="absolute bottom-0 left-0 w-12 h-12 bg-gradient-to-tr from-terracotta-200/20 to-transparent rounded-tr-3xl"></div>
+            {/* Image Container */}
+          <div className="relative aspect-square overflow-hidden rounded-t-3xl">              <OptimizedImage
+              src={product.images?.[0]?.url || product.images?.[0] || getProductPlaceholder(product)}
               alt={product.name}
-              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+              className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 ease-out"
+              aspectRatio="square"
+              lazy={true}
+              fallback={getProductPlaceholder(product)}
             />
             
-            {/* Badges */}
+            {/* Gradient overlay */}
+            <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+            
+            {/* Floating badges */}
             <div className="absolute top-4 left-4 flex flex-col gap-2">
               {isOnSale && (
-                <span className="px-2 py-1 bg-red-500 text-white text-xs font-semibold rounded-full">
+                <motion.span 
+                  initial={{ scale: 0 }}
+                  animate={{ scale: 1 }}
+                  className="px-3 py-1.5 bg-gradient-to-r from-terracotta-500 to-terracotta-600 text-white text-xs font-semibold rounded-full shadow-soft flex items-center gap-1"
+                >
+                  <Sparkles className="h-3 w-3" />
                   -{discountPercentage}%
-                </span>
+                </motion.span>
               )}
               {product.isNew && (
-                <span className="px-2 py-1 bg-primary-500 text-white text-xs font-semibold rounded-full">
+                <span className="px-3 py-1.5 bg-gradient-to-r from-forest-500 to-forest-600 text-white text-xs font-semibold rounded-full shadow-soft flex items-center gap-1">
+                  <Leaf className="h-3 w-3" />
                   New
                 </span>
               )}
               {product.stock < 5 && product.stock > 0 && (
-                <span className="px-2 py-1 bg-orange-500 text-white text-xs font-semibold rounded-full">
+                <span className="px-3 py-1.5 bg-gradient-to-r from-orange-400 to-orange-500 text-white text-xs font-semibold rounded-full shadow-soft">
                   Low Stock
                 </span>
               )}
               {product.stock === 0 && (
-                <span className="px-2 py-1 bg-gray-500 text-white text-xs font-semibold rounded-full">
+                <span className="px-3 py-1.5 bg-gradient-to-r from-gray-400 to-gray-500 text-white text-xs font-semibold rounded-full shadow-soft">
                   Out of Stock
                 </span>
               )}
             </div>
 
-            {/* Action Buttons */}
-            <div className="absolute top-4 right-4 flex flex-col gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-              <button
+            {/* Wishlist Button */}
+            <div className="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-all duration-300 transform translate-y-2 group-hover:translate-y-0">
+              <motion.button
+                whileHover={{ scale: 1.1 }}
+                whileTap={{ scale: 0.95 }}
                 onClick={handleWishlist}
-                className="p-2 bg-white rounded-full shadow-lg hover:bg-gray-50 transition-colors"
+                className="p-3 bg-white/90 backdrop-blur-sm rounded-full shadow-nature hover:shadow-glow transition-all duration-300 border border-white/20"
               >
-                {isWishlisted ? (
-                  <HeartSolid className="h-5 w-5 text-red-500" />
-                ) : (
-                  <HeartOutline className="h-5 w-5 text-gray-600" />
-                )}
-              </button>
-            </div>            {/* Quick Add Button - Now visible always with hover effect */}
-            <div className="absolute bottom-4 left-4 right-4 transition-all duration-300">
-              <button
+                <Heart 
+                  className={`h-5 w-5 transition-colors duration-300 ${
+                    isWishlisted 
+                      ? 'text-terracotta-500 fill-current' 
+                      : 'text-forest-600 hover:text-terracotta-500'
+                  }`} 
+                />
+              </motion.button>
+            </div>
+
+            {/* Quick View Button */}
+            <div className="absolute bottom-4 right-4 opacity-0 group-hover:opacity-100 transition-all duration-300 transform translate-y-2 group-hover:translate-y-0">
+              <motion.button
+                whileHover={{ scale: 1.1 }}
+                whileTap={{ scale: 0.95 }}
+                className="p-3 bg-white/90 backdrop-blur-sm rounded-full shadow-nature hover:shadow-glow transition-all duration-300 border border-white/20"
+              >
+                <Eye className="h-5 w-5 text-forest-600 hover:text-sage-600 transition-colors duration-300" />
+              </motion.button>
+            </div>
+
+            {/* Quick Add Button */}
+            <div className="absolute bottom-4 left-4 right-16 opacity-0 group-hover:opacity-100 transition-all duration-300 transform translate-y-4 group-hover:translate-y-0">
+              <motion.button
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
                 onClick={handleAddToCart}
                 disabled={product.stock === 0}
-                className="w-full bg-green-500 text-black py-2 px-4 rounded-full hover:bg-green-600 hover:shadow-lg transform hover:-translate-y-1 transition-all duration-300 flex items-center justify-center gap-2 disabled:bg-gray-400 disabled:cursor-not-allowed font-medium"
+                className="w-full bg-gradient-to-r from-forest-600 to-forest-700 text-white py-3 px-4 rounded-full hover:from-forest-500 hover:to-forest-600 shadow-nature hover:shadow-glow transition-all duration-300 flex items-center justify-center gap-2 disabled:from-gray-400 disabled:to-gray-500 disabled:cursor-not-allowed font-medium text-sm backdrop-blur-sm"
               >
-                <ShoppingCartIcon className="h-4 w-4" />
-                {product.stock === 0 ? 'Out of Stock' : 'Quick Add'}
-              </button>
+                <ShoppingCart className="h-4 w-4" />
+                {product.stock === 0 ? 'Out of Stock' : 'Add to Cart'}
+              </motion.button>
             </div>
           </div>
 
           {/* Content */}
-          <div className="p-6">
-            {/* Category */}
-            <p className="text-sm text-primary-600 font-medium mb-1">
-              {product.category?.name || 'Plants'}
-            </p>
+          <div className="p-6 relative">
+            {/* Category with plant icon */}
+            <div className="flex items-center gap-2 mb-2">
+              <Leaf className="h-4 w-4 text-sage-500" />
+              <p className="text-sm text-sage-600 font-medium">
+                {product.category?.name || 'Plants'}
+              </p>
+            </div>
             
             {/* Name */}
-            <h3 className="text-lg font-semibold text-gray-900 mb-2 line-clamp-2">
+            <h3 className="text-lg font-semibold text-charcoal-800 mb-3 line-clamp-2 group-hover:text-forest-700 transition-colors duration-300">
               {product.name}
             </h3>
             
             {/* Rating */}
-            <div className="flex items-center gap-2 mb-3">
+            <div className="flex items-center gap-2 mb-4">
               <div className="flex items-center gap-1">
                 {renderStars(product.rating || 4.5)}
               </div>
-              <span className="text-sm text-gray-600">
-                ({product.reviewCount || 12})
+              <span className="text-sm text-charcoal-600">
+                ({product.reviewCount || 12} reviews)
               </span>
             </div>
 
             {/* Price */}
-            <div className="flex items-center gap-2 mb-3">
-              <span className="text-xl font-bold text-gray-900">
+            <div className="flex items-center gap-3 mb-4">
+              <span className="text-2xl font-bold text-forest-800">
                 ₹{isOnSale ? product.salePrice : product.price}
               </span>
               {isOnSale && (
-                <span className="text-sm text-gray-500 line-through">
+                <span className="text-base text-charcoal-500 line-through">
                   ₹{product.price}
                 </span>
               )}
@@ -167,14 +217,14 @@ const ProductCard = ({ product }) => {
 
             {/* Care Level */}
             {product.careLevel && (
-              <div className="flex items-center gap-2">
-                <span className="text-sm text-gray-600">Care Level:</span>
-                <span className={`text-sm px-2 py-1 rounded-full ${
+              <div className="flex items-center gap-2 mb-3">
+                <span className="text-sm text-charcoal-600">Care Level:</span>
+                <span className={`text-sm px-3 py-1 rounded-full font-medium ${
                   product.careLevel === 'Easy' 
-                    ? 'bg-green-100 text-green-700'
+                    ? 'bg-sage-100 text-sage-700 border border-sage-200'
                     : product.careLevel === 'Medium'
-                    ? 'bg-yellow-100 text-yellow-700'
-                    : 'bg-red-100 text-red-700'
+                    ? 'bg-terracotta-100 text-terracotta-700 border border-terracotta-200'
+                    : 'bg-forest-100 text-forest-700 border border-forest-200'
                 }`}>
                   {product.careLevel}
                 </span>
@@ -183,10 +233,14 @@ const ProductCard = ({ product }) => {
 
             {/* Plant Size */}
             {product.size && (
-              <p className="text-sm text-gray-600 mt-2">
+              <p className="text-sm text-charcoal-600 flex items-center gap-2">
+                <span className="w-2 h-2 bg-sage-400 rounded-full"></span>
                 Size: {product.size}
               </p>
             )}
+
+            {/* Decorative bottom accent */}
+            <div className="absolute bottom-0 left-6 right-6 h-px bg-gradient-to-r from-transparent via-sage-200 to-transparent"></div>
           </div>
         </div>
       </Link>

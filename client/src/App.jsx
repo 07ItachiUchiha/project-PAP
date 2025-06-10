@@ -2,9 +2,17 @@ import React, { useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { Provider } from 'react-redux';
 import { ToastContainer } from 'react-toastify';
+import { HelmetProvider } from 'react-helmet-async';
 import store from './store';
 import { useDispatch, useSelector } from 'react-redux';
 import { getProfile } from './store/slices/authSlice';
+
+// Enhanced Components
+import ErrorBoundary from './components/common/ErrorBoundary';
+import ToastProvider from './components/common/ToastProvider';
+import PerformanceMonitor from './components/common/PerformanceMonitor';
+import { PWAInstallBanner, PWAStatusIndicator } from './components/common/PWAComponents';
+import RecentlyViewed from './components/common/RecentlyViewed';
 
 // Layout Components
 import Navbar from './components/layout/Navbar';
@@ -92,6 +100,8 @@ const AppLayout = () => {
 
   return (
     <div className="min-h-screen bg-gray-50">
+      <PWAInstallBanner />
+      <PWAStatusIndicator />
       <Navbar />
       <main className="min-h-screen">
         <Routes>
@@ -156,6 +166,15 @@ const AppLayout = () => {
       </main>
       <Footer />
       
+      {/* Recently Viewed Floating Component */}
+      <RecentlyViewed />
+      
+      {/* PWA Install Banner */}
+      <PWAInstallBanner />
+      
+      {/* PWA Status Indicator */}
+      <PWAStatusIndicator />
+      
       <ToastContainer
         position="top-right"
         autoClose={3000}
@@ -175,9 +194,16 @@ const AppLayout = () => {
 function App() {
   return (
     <Provider store={store}>
-      <Router>
-        <AppLayout />
-      </Router>
+      <HelmetProvider>
+        <ToastProvider>
+          <PerformanceMonitor />
+          <Router>
+            <ErrorBoundary>
+              <AppLayout />
+            </ErrorBoundary>
+          </Router>
+        </ToastProvider>
+      </HelmetProvider>
     </Provider>
   );
 }

@@ -3,7 +3,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { Link } from 'react-router-dom';
 // eslint-disable-next-line no-unused-vars
 import { motion } from 'framer-motion';
-import { ShoppingBagIcon, ClockIcon, CheckCircleIcon, XCircleIcon } from '@heroicons/react/24/outline';
+import { ShoppingBag, Clock, CheckCircle, XCircle } from 'lucide-react';
 import { fetchUserOrders } from '../store/slices/orderSlice';
 import LoadingSpinner from '../components/common/LoadingSpinner';
 
@@ -14,16 +14,15 @@ const Orders = () => {
   useEffect(() => {
     dispatch(fetchUserOrders());
   }, [dispatch]);
-
   const getStatusIcon = (status) => {
     switch (status.toLowerCase()) {
       case 'completed':
       case 'delivered':
-        return <CheckCircleIcon className="h-5 w-5 text-green-500" />;
+        return <CheckCircle className="h-5 w-5 text-green-500" />;
       case 'cancelled':
-        return <XCircleIcon className="h-5 w-5 text-red-500" />;
+        return <XCircle className="h-5 w-5 text-red-500" />;
       default:
-        return <ClockIcon className="h-5 w-5 text-yellow-500" />;
+        return <Clock className="h-5 w-5 text-yellow-500" />;
     }
   };
 
@@ -82,9 +81,8 @@ const Orders = () => {
                   className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden"
                 >                  {/* Order Header */}
                   <div className="px-6 py-4 bg-gray-50 border-b border-gray-200">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center space-x-4">
-                        <ShoppingBagIcon className="h-6 w-6 text-gray-400" />
+                    <div className="flex items-center justify-between">                      <div className="flex items-center space-x-4">
+                        <ShoppingBag className="h-6 w-6 text-gray-400" />
                         <div>
                           <p className="font-semibold text-gray-900">Order #{order._id.slice(-6)}</p>
                           <p className="text-sm text-gray-600">

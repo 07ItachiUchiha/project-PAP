@@ -3,7 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 // eslint-disable-next-line no-unused-vars
 import { motion } from 'framer-motion';
-import { XMarkIcon, ShoppingCartIcon } from '@heroicons/react/24/outline';
+import { X, ShoppingCart } from 'lucide-react';
 import { toast } from 'react-toastify';
 import { fetchWishlist, removeFromWishlist } from '../store/slices/wishlistSlice';
 import { addToCart, addToLocalCart } from '../store/slices/cartSlice';
@@ -153,14 +153,14 @@ const Wishlist = () => {
                             onClick={() => handleAddToCart(item._id)}
                             disabled={!item.stock || item.stock <= 0}
                           >
-                            <ShoppingCartIcon className="h-4 w-4 mr-1" />
+                            <ShoppingCart className="h-4 w-4 mr-1" />
                             Add to Cart
                           </button>
                           <button
                             className="inline-flex items-center px-3 py-2 border border-gray-300 text-sm leading-4 font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
                             onClick={() => handleRemoveFromWishlist(item._id)}
                           >
-                            <XMarkIcon className="h-4 w-4 mr-1" />
+                            <X className="h-4 w-4 mr-1" />
                             Remove
                           </button>
                         </div>

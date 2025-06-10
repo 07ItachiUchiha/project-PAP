@@ -2,7 +2,7 @@ import React, { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 // eslint-disable-next-line no-unused-vars
 import { motion } from 'framer-motion';
-import { UserIcon, EnvelopeIcon, CalendarDaysIcon } from '@heroicons/react/24/outline';
+import { User, Mail, Calendar } from 'lucide-react';
 import { getProfile } from '../store/slices/authSlice';
 import LoadingSpinner from '../components/common/LoadingSpinner';
 
@@ -44,11 +44,10 @@ const Profile = () => {
           transition={{ duration: 0.6 }}
           className="bg-white shadow rounded-lg overflow-hidden"
         >
-          {/* Header */}
-          <div className="bg-green-600 px-6 py-8">
+          {/* Header */}          <div className="bg-green-600 px-6 py-8">
             <div className="flex items-center">
               <div className="bg-white p-3 rounded-full">
-                <UserIcon className="h-8 w-8 text-green-600" />
+                <User className="h-8 w-8 text-green-600" />
               </div>
               <div className="ml-4">
                 <h1 className="text-2xl font-bold text-white">{user.name}</h1>
@@ -65,21 +64,21 @@ const Profile = () => {
                 <h2 className="text-lg font-semibold text-gray-900 mb-4">Personal Information</h2>
                 <div className="space-y-4">
                   <div className="flex items-center">
-                    <UserIcon className="h-5 w-5 text-gray-400 mr-3" />
+                    <User className="h-5 w-5 text-gray-400 mr-3" />
                     <div>
                       <p className="text-sm text-gray-600">Full Name</p>
                       <p className="font-medium text-gray-900">{user.name}</p>
                     </div>
                   </div>
                   <div className="flex items-center">
-                    <EnvelopeIcon className="h-5 w-5 text-gray-400 mr-3" />
+                    <Mail className="h-5 w-5 text-gray-400 mr-3" />
                     <div>
                       <p className="text-sm text-gray-600">Email</p>
                       <p className="font-medium text-gray-900">{user.email}</p>
                     </div>
                   </div>
                   <div className="flex items-center">
-                    <CalendarDaysIcon className="h-5 w-5 text-gray-400 mr-3" />
+                    <Calendar className="h-5 w-5 text-gray-400 mr-3" />
                     <div>
                       <p className="text-sm text-gray-600">Member Since</p>
                       <p className="font-medium text-gray-900">

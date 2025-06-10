@@ -3,62 +3,57 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { 
-  ArrowRightIcon,
-  SparklesIcon,
-  HeartIcon,
-  TruckIcon,
-  GiftIcon 
-} from '@heroicons/react/24/outline';
+  ArrowRight,
+  Sparkles,
+  Heart,
+  Truck,
+  Gift 
+} from 'lucide-react';
 
 const OrganicSection = () => {
-  const organicCategories = [
-    {
+  const organicCategories = [    {
       title: "Fresh Vegetables",
-      image: "https://images.unsplash.com/photo-1540420773420-3366772f4999?w=400",
+      image: "https://images.unsplash.com/photo-1540420773420-3366772f4999?w=400&h=400&fit=crop&auto=format",
       description: "Farm-fresh organic vegetables",
       items: ["Tomatoes", "Lettuce", "Carrots", "Spinach"],
       link: "/shop?category=vegetables"
-    },
-    {
+    },    {
       title: "Herbs & Microgreens",
-      image: "https://images.unsplash.com/photo-1526318896980-cf78c088247c?w=400",
+      image: "https://images.unsplash.com/photo-1526318896980-cf78c088247c?w=400&h=400&fit=crop&auto=format",
       description: "Fresh herbs and nutrient-rich microgreens",
       items: ["Basil", "Mint", "Cilantro", "Microgreens"],
       link: "/shop?category=herbs"
-    },
-    {
+    },    {
       title: "Seasonal Fruits",
-      image: "https://images.unsplash.com/photo-1619566636858-adf3ef46400b?w=400",
+      image: "https://images.unsplash.com/photo-1619566636858-adf3ef46400b?w=400&h=400&fit=crop&auto=format",
       description: "Organic seasonal fruits",
       items: ["Strawberries", "Blueberries", "Apples", "Citrus"],
       link: "/shop?category=fruits"
-    },
-    {
+    },    {
       title: "Organic Fertilizers",
-      image: "https://images.unsplash.com/photo-1416879595882-3373a0480b5b?w=400",
+      image: "https://images.unsplash.com/photo-1416879595882-3373a0480b5b?w=400&h=400&fit=crop&auto=format",
       description: "Natural plant nutrition",
       items: ["Compost", "Organic Manure", "Liquid Fertilizer", "Bone Meal"],
       link: "/shop?category=fertilizers"
     }
-  ];
-  const benefits = [
+  ];  const benefits = [
     {
-      icon: <SparklesIcon className="h-8 w-8" />,
+      icon: <Sparkles className="h-8 w-8" />,
       title: "100% Organic",
       description: "No harmful pesticides or chemicals"
     },
     {
-      icon: <HeartIcon className="h-8 w-8" />,
+      icon: <Heart className="h-8 w-8" />,
       title: "Health First",
       description: "Better nutrition and taste"
     },
     {
-      icon: <TruckIcon className="h-8 w-8" />,
+      icon: <Truck className="h-8 w-8" />,
       title: "Fresh Delivery",
       description: "Harvest to doorstep in 24 hours"
     },
     {
-      icon: <GiftIcon className="h-8 w-8" />,
+      icon: <Gift className="h-8 w-8" />,
       title: "Quality Promise",
       description: "100% satisfaction guaranteed"
     }
@@ -93,10 +88,9 @@ const OrganicSection = () => {
               </p>
               <Link 
                 to="/shop?category=organic"
-                className="inline-flex items-center px-8 py-4 bg-green-600 text-white font-semibold rounded-full hover:bg-green-700 transition-colors duration-300 group"
-              >
+                className="inline-flex items-center px-8 py-4 bg-green-600 text-white font-semibold rounded-full hover:bg-green-700 transition-colors duration-300 group"              >
                 Shop Organic Now
-                <ArrowRightIcon className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
+                <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
               </Link>
             </motion.div>
           </div>

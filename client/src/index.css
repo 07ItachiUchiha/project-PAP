@@ -1,8 +1,321 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@300;400;500;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@400;500;600;700&family=Source+Sans+Pro:wght@300;400;500;600&display=swap');
 @import "tailwindcss";
 
-/* Custom styles */
+/* Global Nature-Inspired Styles */
+* {
+  scroll-behavior: smooth;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
 body {
-  font-family: 'Inter', sans-serif;
+  font-family: 'Source Sans Pro', sans-serif;
   font-feature-settings: "rlig" 1, "calt" 1;
+  background: linear-gradient(135deg, #FEFBF6 0%, #f7f8f5 100%);
+  color: #2C3E2D;
+  line-height: 1.6;
+}
+
+/* Custom scrollbar with nature theme */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f6f8f4;
+}
+
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, #87A96B, #6f9654);
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(180deg, #6f9654, #577a41);
+}
+
+/* Organic button styles */
+.btn-nature {
+  background: linear-gradient(to right, #2D5016, #456235);
+  color: white;
+  padding: 0.75rem 2rem;
+  border-radius: 9999px;
+  font-weight: 500;
+  box-shadow: 0 4px 20px -2px rgba(45, 80, 22, 0.1), 0 2px 8px -2px rgba(45, 80, 22, 0.06);
+  transition: all 0.3s ease;
+  transform: scale(1);
+}
+
+.btn-nature:hover {
+  background: linear-gradient(to right, #577a41, #6f9654);
+  box-shadow: 0 0 20px rgba(135, 169, 107, 0.3);
+  transform: scale(1.05);
+}
+
+.btn-nature-secondary {
+  background: linear-gradient(to right, #87A96B, #708f57);
+  color: white;
+  padding: 0.625rem 1.5rem;
+  border-radius: 9999px;
+  font-weight: 500;
+  box-shadow: 0 2px 15px -3px rgba(0, 0, 0, 0.07), 0 10px 20px -2px rgba(0, 0, 0, 0.04);
+  transition: all 0.3s ease;
+  transform: scale(1);
+}
+
+.btn-nature-secondary:hover {
+  box-shadow: 0 4px 20px -2px rgba(45, 80, 22, 0.1), 0 2px 8px -2px rgba(45, 80, 22, 0.06);
+  transform: scale(1.05);
+}
+
+.btn-nature-outline {
+  border: 2px solid #2D5016;
+  color: #2D5016;
+  padding: 0.625rem 1.5rem;
+  border-radius: 9999px;
+  font-weight: 500;
+  background: transparent;
+  transition: all 0.3s ease;
+  transform: scale(1);
+}
+
+.btn-nature-outline:hover {
+  background: #2D5016;
+  color: white;
+  transform: scale(1.05);
+}
+
+/* Organic card styles */
+.card-nature {
+  background: white;
+  border-radius: 1.5rem;
+  box-shadow: 0 2px 15px -3px rgba(0, 0, 0, 0.07), 0 10px 20px -2px rgba(0, 0, 0, 0.04);
+  transition: all 0.5s ease;
+  transform: translateY(0);
+  overflow: hidden;
+  backdrop-filter: blur(2px);
+}
+
+.card-nature:hover {
+  box-shadow: 0 4px 20px -2px rgba(45, 80, 22, 0.1), 0 2px 8px -2px rgba(45, 80, 22, 0.06);
+  transform: translateY(-8px);
+}
+
+.card-nature-glass {
+  background: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(16px);
+  border-radius: 1.5rem;
+  box-shadow: 0 2px 15px -3px rgba(0, 0, 0, 0.07), 0 10px 20px -2px rgba(0, 0, 0, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  transition: all 0.5s ease;
+}
+
+.card-nature-glass:hover {
+  background: rgba(255, 255, 255, 0.9);
+  box-shadow: 0 4px 20px -2px rgba(45, 80, 22, 0.1), 0 2px 8px -2px rgba(45, 80, 22, 0.06);
+}
+
+/* Floating elements */
+.floating-element {
+  animation: float 6s ease-in-out infinite;
+}
+
+.floating-element:nth-child(2n) {
+  animation-delay: -2s;
+}
+
+.floating-element:nth-child(3n) {
+  animation-delay: -4s;
+}
+
+/* Nature-inspired gradients */
+.gradient-nature {
+  background: linear-gradient(135deg, #2D5016 0%, #577a41 50%, #87A96B 100%);
+}
+
+.gradient-sage {
+  background: linear-gradient(135deg, #87A96B 0%, #a8bb90 50%, #c6d2b4 100%);
+}
+
+.gradient-terracotta {
+  background: linear-gradient(135deg, #C7522A 0%, #de5437 50%, #f07354 100%);
+}
+
+.gradient-overlay {
+  background: linear-gradient(
+    135deg,
+    rgba(45, 80, 22, 0.8) 0%,
+    rgba(87, 122, 65, 0.6) 50%,
+    rgba(135, 169, 107, 0.4) 100%
+  );
+}
+
+/* Text shimmer effect */
+.text-shimmer {
+  background: linear-gradient(90deg, #2D5016, #87A96B, #C7522A, #2D5016);
+  background-size: 200% auto;
+  color: transparent;
+  -webkit-background-clip: text;
+  background-clip: text;
+  animation: shimmer 3s linear infinite;
+}
+
+/* Organic shapes */
+.organic-blob {
+  border-radius: 30% 70% 70% 30% / 30% 30% 70% 70%;
+  animation: sway 8s ease-in-out infinite;
+}
+
+.organic-blob:hover {
+  border-radius: 70% 30% 30% 70% / 70% 70% 30% 30%;
+  transition: border-radius 1s ease-in-out;
+}
+
+/* Leaf decorations */
+.leaf-decoration::before {
+  content: '🌿';
+  position: absolute;
+  top: -10px;
+  right: -10px;
+  font-size: 1.5rem;
+  opacity: 0.7;
+  animation: sway 3s ease-in-out infinite;
+}
+
+/* Nature-inspired focus states */
+.focus-nature:focus {
+  outline: none;
+  box-shadow: 0 0 0 4px rgba(135, 169, 107, 0.5);
+  border-color: #87A96B;
+}
+
+/* Smooth transitions for all interactive elements */
+.interactive {
+  transition: all 0.3s ease-out;
+}
+
+.interactive:hover {
+  transform: scale(1.05);
+}
+
+/* Glass morphism effect */
+.glass-morphism {
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+/* Nature-themed animations */
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-20px); }
+}
+
+@keyframes sway {
+  0%, 100% { transform: rotate(-3deg); }
+  50% { transform: rotate(3deg); }
+}
+
+@keyframes shimmer {
+  0% { background-position: -200% center; }
+  100% { background-position: 200% center; }
+}
+
+@keyframes fade-in-up {
+  0% { 
+    opacity: 0; 
+    transform: translateY(30px); 
+  }
+  100% { 
+    opacity: 1; 
+    transform: translateY(0); 
+  }
+}
+
+@keyframes pulse-glow {
+  0%, 100% { 
+    box-shadow: 0 0 20px rgba(135, 169, 107, 0.3); 
+  }
+  50% { 
+    box-shadow: 0 0 30px rgba(135, 169, 107, 0.6); 
+  }
+}
+
+@keyframes leaf-fall {
+  0% { 
+    transform: translateY(-100vh) rotate(0deg); 
+    opacity: 1; 
+  }
+  100% { 
+    transform: translateY(100vh) rotate(360deg); 
+    opacity: 0; 
+  }
+}
+
+@keyframes spin-nature {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Animation utility classes */
+.animate-float {
+  animation: float 6s ease-in-out infinite;
+}
+
+.animate-sway {
+  animation: sway 4s ease-in-out infinite;
+}
+
+.animate-shimmer {
+  animation: shimmer 3s linear infinite;
+}
+
+.animate-fade-in-up {
+  animation: fade-in-up 0.8s ease-out;
+}
+
+.animate-pulse-glow {
+  animation: pulse-glow 2s ease-in-out infinite;
+}
+
+.animate-leaf-fall {
+  animation: leaf-fall 10s linear infinite;
+}
+
+.spinner-nature {
+  border: 3px solid rgba(135, 169, 107, 0.3);
+  border-top: 3px solid #87A96B;
+  border-radius: 50%;
+  animation: spin-nature 1s linear infinite;
+}
+
+/* Animation delays */
+.animation-delay-1000 {
+  animation-delay: 1s;
+}
+
+.animation-delay-2000 {
+  animation-delay: 2s;
+}
+
+.animation-delay-3000 {
+  animation-delay: 3s;
+}
+
+/* Responsive typography */
+@media (max-width: 768px) {
+  body {
+    font-size: 14px;
+  }
+}
+
+/* Print styles */
+@media print {
+  body {
+    background: white !important;
+    color: black !important;
+  }
 }
