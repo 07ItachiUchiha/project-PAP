@@ -6,10 +6,12 @@ import RazorpayPayment from '../components/payment/RazorpayPayment';
 import LoadingSpinner from '../components/common/LoadingSpinner';
 import { createOrder } from '../api/orderAPI';
 import { clearCart } from '../store/slices/cartSlice';
+import { useCurrency } from '../contexts/CurrencyContext';
 
 const Checkout = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
+  const { formatPrice } = useCurrency();
   const { 
     items, 
     totalAmount,
@@ -198,13 +200,13 @@ const Checkout = () => {
                         <h3 className="text-sm font-medium text-gray-900">{item.product.name}</h3>
                         <p className="text-sm text-gray-500">Quantity: {item.quantity}</p>
                       </div>                      <span className="text-sm font-medium text-gray-900">
-                        ₹{(item.product.price * item.quantity).toFixed(2)}
+                        {formatPrice(item.product.price * item.quantity)}
                       </span>
                     </div>
                   ))}                  <div className="border-t pt-4 space-y-2">
                     <div className="flex justify-between">
                       <span className="text-gray-600">Subtotal:</span>
-                      <span>₹{(subtotal || totalAmount).toFixed(2)}</span>
+                      <span>{formatPrice(subtotal || totalAmount)}</span>
                     </div>
                     
                     {/* Show applied coupons and discounts */}
@@ -214,12 +216,12 @@ const Checkout = () => {
                         {appliedCoupons.map((coupon, index) => (
                           <div key={index} className="flex justify-between text-sm text-green-600">
                             <span>{coupon.couponCode}</span>
-                            <span>-₹{coupon.discountAmount.toFixed(2)}</span>
+                            <span>-{formatPrice(coupon.discountAmount)}</span>
                           </div>
                         ))}
                         <div className="flex justify-between text-green-600 font-medium">
                           <span>Total Discount:</span>
-                          <span>-₹{totalDiscount.toFixed(2)}</span>
+                          <span>-{formatPrice(totalDiscount)}</span>
                         </div>
                       </>
                     )}
@@ -227,15 +229,14 @@ const Checkout = () => {
                     <div className="flex justify-between">
                       <span className="text-gray-600">Shipping:</span>
                       <span>Free</span>
-                    </div>
-                    <div className="flex justify-between">
+                    </div>                    <div className="flex justify-between">
                       <span className="text-gray-600">Tax:</span>
-                      <span>₹0.00</span>
+                      <span>{formatPrice(0)}</span>
                     </div>
                     <div className="border-t pt-2">
                       <div className="flex justify-between text-lg font-semibold">
                         <span>Total:</span>
-                        <span>₹{(finalAmount || totalAmount).toFixed(2)}</span>
+                        <span>{formatPrice(finalAmount || totalAmount)}</span>
                       </div>
                     </div>
                   </div>

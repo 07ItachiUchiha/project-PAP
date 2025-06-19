@@ -8,10 +8,12 @@ import { toast } from 'react-toastify';
 import { fetchWishlist, removeFromWishlist } from '../store/slices/wishlistSlice';
 import { addToCart, addToLocalCart } from '../store/slices/cartSlice';
 import LoadingSpinner from '../components/common/LoadingSpinner';
+import { useCurrency } from '../contexts/CurrencyContext';
 
 const Wishlist = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const { formatPrice } = useCurrency();
   const { items, loading, error } = useSelector((state) => state.wishlist);
   const { isAuthenticated } = useSelector((state) => state.auth);
 
@@ -133,11 +135,10 @@ const Wishlist = () => {
                             )}
                           </div>
                         </div>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="text-lg font-medium text-gray-900">₹{item.price}</div>
+                      </td>                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="text-lg font-medium text-gray-900">{formatPrice(item.price)}</div>
                         {item.originalPrice && item.originalPrice > item.price && (
-                          <div className="text-sm text-gray-500 line-through">₹{item.originalPrice}</div>
+                          <div className="text-sm text-gray-500 line-through">{formatPrice(item.originalPrice)}</div>
                         )}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">

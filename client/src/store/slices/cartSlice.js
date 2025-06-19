@@ -119,8 +119,7 @@ const cartSlice = createSlice({
   reducers: {
     clearError: (state) => {
       state.error = null;
-    },
-    // Local cart management (for guest users)
+    },    // Local cart management (for guest users)
     addToLocalCart: (state, action) => {
       const { product, quantity = 1 } = action.payload;
       const existingItem = state.items.find(item => item.product._id === product._id);
@@ -138,8 +137,9 @@ const cartSlice = createSlice({
       // Recalculate totals
       state.totalQuantity = state.items.reduce((total, item) => total + item.quantity, 0);
       state.totalAmount = state.items.reduce((total, item) => total + (item.product.price * item.quantity), 0);
-    },
-    updateLocalCartItem: (state, action) => {
+      state.subtotal = state.totalAmount; // Set subtotal same as totalAmount for local cart
+      state.finalAmount = state.totalAmount; // Set finalAmount same as totalAmount for local cart
+    },updateLocalCartItem: (state, action) => {
       const { productId, quantity } = action.payload;
       const item = state.items.find(item => item.product._id === productId);
       
@@ -154,19 +154,23 @@ const cartSlice = createSlice({
       // Recalculate totals
       state.totalQuantity = state.items.reduce((total, item) => total + item.quantity, 0);
       state.totalAmount = state.items.reduce((total, item) => total + (item.product.price * item.quantity), 0);
-    },
-    removeFromLocalCart: (state, action) => {
+      state.subtotal = state.totalAmount; // Set subtotal same as totalAmount for local cart
+      state.finalAmount = state.totalAmount; // Set finalAmount same as totalAmount for local cart
+    },    removeFromLocalCart: (state, action) => {
       const productId = action.payload;
       state.items = state.items.filter(item => item.product._id !== productId);
       
       // Recalculate totals
       state.totalQuantity = state.items.reduce((total, item) => total + item.quantity, 0);
       state.totalAmount = state.items.reduce((total, item) => total + (item.product.price * item.quantity), 0);
-    },
-    clearLocalCart: (state) => {
+      state.subtotal = state.totalAmount; // Set subtotal same as totalAmount for local cart
+      state.finalAmount = state.totalAmount; // Set finalAmount same as totalAmount for local cart
+    },    clearLocalCart: (state) => {
       state.items = [];
       state.totalQuantity = 0;
       state.totalAmount = 0;
+      state.subtotal = 0;
+      state.finalAmount = 0;
     },
   },
   extraReducers: (builder) => {

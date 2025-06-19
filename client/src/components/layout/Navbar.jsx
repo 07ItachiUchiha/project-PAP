@@ -19,6 +19,7 @@ import {
 } from 'lucide-react';
 import { logoutUser } from '../../store/slices/authSlice';
 import { toast } from 'react-toastify';
+import CurrencySelector from '../common/CurrencySelector';
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -123,6 +124,9 @@ const Navbar = () => {
 
           {/* Enhanced Right side buttons */}
           <div className="hidden md:flex items-center space-x-3">
+            {/* Currency Selector */}
+            <CurrencySelector className="mr-2" showLabel={false} />
+            
             {/* Enhanced Cart */}
             <motion.div whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.95 }}>
               <Link to="/cart" className="relative p-3 text-charcoal-700 hover:text-forest-700 hover:bg-sage-50 rounded-full transition-all duration-300 group">
@@ -298,33 +302,40 @@ const Navbar = () => {
               ))}
 
               {/* Mobile Cart & Wishlist */}
-              <div className="flex items-center space-x-4 pt-4 border-t border-sage-100">
-                <Link
-                  to="/cart"
-                  className="flex items-center space-x-2 px-4 py-3 rounded-xl text-base font-medium text-charcoal-700 hover:text-forest-700 hover:bg-sage-50 transition-all duration-300 flex-1"
-                  onClick={() => setIsOpen(false)}
-                >
-                  <div className="relative">
-                    <ShoppingCart className="h-5 w-5" />
-                    {totalQuantity > 0 && (
-                      <span className="absolute -top-1 -right-1 bg-terracotta-500 text-white text-xs rounded-full h-4 w-4 flex items-center justify-center">
-                        {totalQuantity}
-                      </span>
-                    )}
-                  </div>
-                  <span>Cart</span>
-                </Link>
+              <div className="space-y-4 pt-4 border-t border-sage-100">
+                {/* Currency Selector for Mobile */}
+                <div className="px-4">
+                  <CurrencySelector className="w-full" showLabel={true} />
+                </div>
                 
-                {isAuthenticated && (
+                <div className="flex items-center space-x-4">
                   <Link
-                    to="/wishlist"
-                    className="flex items-center space-x-2 px-4 py-3 rounded-xl text-base font-medium text-charcoal-700 hover:text-forest-700 hover:bg-sage-50 transition-all duration-300"
+                    to="/cart"
+                    className="flex items-center space-x-2 px-4 py-3 rounded-xl text-base font-medium text-charcoal-700 hover:text-forest-700 hover:bg-sage-50 transition-all duration-300 flex-1"
                     onClick={() => setIsOpen(false)}
                   >
-                    <Heart className="h-5 w-5" />
-                    <span>Wishlist</span>
+                    <div className="relative">
+                      <ShoppingCart className="h-5 w-5" />
+                      {totalQuantity > 0 && (
+                        <span className="absolute -top-1 -right-1 bg-terracotta-500 text-white text-xs rounded-full h-4 w-4 flex items-center justify-center">
+                          {totalQuantity}
+                        </span>
+                      )}
+                    </div>
+                    <span>Cart</span>
                   </Link>
-                )}
+                  
+                  {isAuthenticated && (
+                    <Link
+                      to="/wishlist"
+                      className="flex items-center space-x-2 px-4 py-3 rounded-xl text-base font-medium text-charcoal-700 hover:text-forest-700 hover:bg-sage-50 transition-all duration-300"
+                      onClick={() => setIsOpen(false)}
+                    >
+                      <Heart className="h-5 w-5" />
+                      <span>Wishlist</span>
+                    </Link>
+                  )}
+                </div>
               </div>
 
               {/* Mobile Auth */}

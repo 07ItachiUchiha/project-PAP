@@ -22,16 +22,20 @@ import {
   removeFromCart, 
   updateLocalCartItem, 
   removeFromLocalCart,
+  addToLocalCart,
   fetchAvailableCoupons,
   applyCoupon,
   removeCoupon
 } from '../store/slices/cartSlice';
 import LoadingSpinner from '../components/common/LoadingSpinner';
 import CouponInput from '../components/cart/CouponInput';
+import CurrencySelector from '../components/common/CurrencySelector';
+import { useCurrency } from '../contexts/CurrencyContext';
 
 const Cart = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const { formatPrice } = useCurrency();
   const { 
     items, 
     totalAmount, 
@@ -48,6 +52,31 @@ const Cart = () => {
   const [cartUpdating, setCartUpdating] = useState(false);
   // Track if coupons have been loaded to prevent duplicate API calls
   const [couponsInitialized, setCouponsInitialized] = useState(false);
+  // Debug cart state
+  console.log('Cart Debug Info:', {
+    items: items?.length || 0,
+    itemsArray: items,
+    totalQuantity,
+    isAuthenticated,
+    isLoading,
+    cartUpdating,
+    subtotal,
+    finalAmount,
+    totalAmount
+  });  // Development function to add test item
+  const addTestItem = useCallback(() => {
+    const testProduct = {
+      _id: 'test-' + Date.now(),
+      name: 'Test Plant',
+      price: 29.99,
+      images: [{ url: '/placeholder.jpg' }],
+      shortDescription: 'A beautiful test plant for development',
+      stock: 10
+    };
+    
+    dispatch(addToLocalCart({ product: testProduct, quantity: 1 }));
+    toast.success('Test item added to cart!');
+  }, [dispatch]);
 
   // Memoize the onLoadCoupons function to prevent unnecessary re-renders
   const handleLoadCoupons = useCallback(() => {
@@ -106,7 +135,6 @@ const Cart = () => {
       setCartUpdating(false);
     }
   };
-
   const handleCheckout = () => {
     if (!isAuthenticated) {
       toast.info('Please login to proceed to checkout');
@@ -158,8 +186,7 @@ const Cart = () => {
               Ready to start your green journey? Discover our beautiful collection of plants 
               and bring nature's magic into your space! 🌿
             </p>
-            
-            <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+              <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
               <Link 
                 to="/shop" 
                 className="bg-gradient-to-r from-forest-700 to-sage-600 text-white px-8 py-4 rounded-2xl hover:from-forest-600 hover:to-sage-500 transition-all duration-300 font-medium text-lg shadow-nature hover:shadow-glow inline-flex items-center gap-3"
@@ -169,6 +196,17 @@ const Cart = () => {
                 <ArrowRight className="h-5 w-5" />
               </Link>
             </motion.div>
+              {/* Development Test Button */}
+            {import.meta.env?.DEV && (
+              <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} className="mt-4">
+                <button 
+                  onClick={addTestItem}
+                  className="bg-gradient-to-r from-terracotta-600 to-terracotta-700 text-white px-6 py-3 rounded-xl hover:from-terracotta-500 hover:to-terracotta-600 transition-all duration-300 font-medium"
+                >
+                  Add Test Item (Dev Only)
+                </button>
+              </motion.div>
+            )}
           </motion.div>
         </div>
       </div>
@@ -255,10 +293,9 @@ const Cart = () => {
                             </h3>
                             <p className="text-sage-600 text-sm line-clamp-2 mb-3">
                               {item.product.shortDescription || item.product.description || 'Beautiful plant to enhance your space'}
-                            </p>
-                            <div className="flex items-center gap-2">
+                            </p>                            <div className="flex items-center gap-2">
                               <span className="text-2xl font-bold text-forest-700">
-                                ${(item.product.price || 0).toFixed(2)}
+                                {formatPrice(item.product.price || 0)}
                               </span>
                               <span className="text-sage-500 text-sm">per plant</span>
                             </div>
@@ -315,11 +352,14 @@ const Cart = () => {
               transition={{ duration: 0.8, delay: 0.4 }}
             >
               <div className="bg-white/80 backdrop-blur-sm rounded-3xl shadow-soft border border-white/20 p-8">
-                <div className="flex items-center gap-3 mb-6">
-                  <Gift className="h-6 w-6 text-terracotta-500" />
-                  <h2 className="text-2xl font-display font-bold text-charcoal-800">
-                    Order Summary
-                  </h2>
+                <div className="flex items-center justify-between mb-6">
+                  <div className="flex items-center gap-3">
+                    <Gift className="h-6 w-6 text-terracotta-500" />
+                    <h2 className="text-2xl font-display font-bold text-charcoal-800">
+                      Order Summary
+                    </h2>
+                  </div>
+                  <CurrencySelector className="ml-4" showLabel={false} />
                 </div>
                 
                 {/* Enhanced Coupon Input Section */}
@@ -360,11 +400,10 @@ const Cart = () => {
                 )}
                 
                 {/* Enhanced Price Breakdown */}
-                <div className="space-y-4 mb-8">
-                  <div className="flex justify-between items-center py-2">
+                <div className="space-y-4 mb-8">                  <div className="flex justify-between items-center py-2">
                     <span className="text-sage-700">Subtotal ({totalQuantity} items)</span>
                     <span className="font-semibold text-charcoal-800">
-                      ${(subtotal || totalAmount).toFixed(2)}
+                      {formatPrice(subtotal || totalAmount)}
                     </span>
                   </div>
                   
@@ -375,12 +414,11 @@ const Cart = () => {
                       initial={{ opacity: 0, scale: 0.9 }}
                       animate={{ opacity: 1, scale: 1 }}
                       transition={{ duration: 0.5 }}
-                    >
-                      <div className="flex items-center gap-2">
+                    >                      <div className="flex items-center gap-2">
                         <Sparkles className="h-4 w-4" />
                         <span>Total Savings</span>
                       </div>
-                      <span className="font-semibold">-${totalDiscount.toFixed(2)}</span>
+                      <span className="font-semibold">-{formatPrice(totalDiscount)}</span>
                     </motion.div>
                   )}
                   
@@ -393,27 +431,26 @@ const Cart = () => {
                     <span className="text-sage-600">Calculated at checkout</span>
                   </div>
                   
-                  <div className="border-t border-sage-200 pt-4 mt-4">
-                    <div className="flex justify-between items-center">
+                  <div className="border-t border-sage-200 pt-4 mt-4">                    <div className="flex justify-between items-center">
                       <span className="text-xl font-display font-bold text-charcoal-800">Total</span>
                       <span className="text-2xl font-bold text-forest-700">
-                        ${(finalAmount || totalAmount).toFixed(2)}
+                        {formatPrice(finalAmount || totalAmount)}
                       </span>
                     </div>
                   </div>
                 </div>
-                
-                {/* Enhanced Checkout Button */}
+                  {/* Enhanced Checkout Button */}
                 <motion.button
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
                   onClick={handleCheckout}
-                  className="w-full py-4 bg-gradient-to-r from-forest-700 to-sage-600 text-white rounded-2xl hover:from-forest-600 hover:to-sage-500 font-semibold text-lg shadow-nature hover:shadow-glow transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-3"
+                  className="w-full py-5 bg-gradient-to-r from-forest-700 to-sage-600 text-white rounded-2xl hover:from-forest-600 hover:to-sage-500 font-bold text-xl shadow-nature hover:shadow-glow transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-3 border-2 border-transparent hover:border-white/20"
                   disabled={cartUpdating}
+                  style={{ minHeight: '60px' }} // Ensure minimum height for visibility
                 >
-                  <ShoppingBag className="h-5 w-5" />
+                  <ShoppingBag className="h-6 w-6" />
                   {isAuthenticated ? 'Proceed to Checkout' : 'Sign in to Checkout'}
-                  <ArrowRight className="h-5 w-5" />
+                  <ArrowRight className="h-6 w-6" />
                 </motion.button>
                 
                 {/* Enhanced Continue Shopping Link */}

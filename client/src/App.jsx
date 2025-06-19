@@ -13,6 +13,7 @@ import ToastProvider from './components/common/ToastProvider';
 import PerformanceMonitor from './components/common/PerformanceMonitor';
 import { PWAInstallBanner, PWAStatusIndicator } from './components/common/PWAComponents';
 import RecentlyViewed from './components/common/RecentlyViewed';
+import { CurrencyProvider } from './contexts/CurrencyContext';
 
 // Layout Components
 import Navbar from './components/layout/Navbar';
@@ -195,14 +196,16 @@ function App() {
   return (
     <Provider store={store}>
       <HelmetProvider>
-        <ToastProvider>
-          <PerformanceMonitor />
-          <Router>
-            <ErrorBoundary>
-              <AppLayout />
-            </ErrorBoundary>
-          </Router>
-        </ToastProvider>
+        <CurrencyProvider>
+          <ToastProvider>
+            <PerformanceMonitor />
+            <Router>
+              <ErrorBoundary>
+                <AppLayout />
+              </ErrorBoundary>
+            </Router>
+          </ToastProvider>
+        </CurrencyProvider>
       </HelmetProvider>
     </Provider>
   );

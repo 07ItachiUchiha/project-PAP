@@ -1,5 +1,9 @@
 import { useState, useEffect } from 'react';
 
+// Global flag to ensure service worker is only registered once
+let isServiceWorkerRegistered = false;
+let globalSwRegistration = null;
+
 /**
  * Custom hook for Progressive Web App functionality
  * Handles service worker registration, installation prompts, and offline status
@@ -9,19 +13,21 @@ export const usePWA = () => {
   const [isInstallable, setIsInstallable] = useState(false);
   const [installPrompt, setInstallPrompt] = useState(null);
   const [isInstalled, setIsInstalled] = useState(false);
-  const [swRegistration, setSwRegistration] = useState(null);
+  const [swRegistration, setSwRegistration] = useState(globalSwRegistration);
   const [swUpdate, setSwUpdate] = useState(null);
 
-  // Register Service Worker
+  // Register Service Worker only once globally
   useEffect(() => {
     const registerSW = async () => {
-      if ('serviceWorker' in navigator) {
+      if ('serviceWorker' in navigator && !isServiceWorkerRegistered) {
         try {
           console.log('🌱 Registering service worker...');
+          isServiceWorkerRegistered = true;
           const registration = await navigator.serviceWorker.register('/sw.js', {
             scope: '/'
           });
           
+          globalSwRegistration = registration;
           setSwRegistration(registration);
           console.log('🌱 Service worker registered successfully');
 
@@ -40,10 +46,13 @@ export const usePWA = () => {
               });
             }
           });
-
         } catch (error) {
           console.error('🌱 Service worker registration failed:', error);
+          isServiceWorkerRegistered = false;
         }
+      } else if (globalSwRegistration) {
+        // Use the existing registration
+        setSwRegistration(globalSwRegistration);
       }
     };
 

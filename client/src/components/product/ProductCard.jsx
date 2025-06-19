@@ -14,9 +14,11 @@ import {
 import { addToCart, addToLocalCart } from '../../store/slices/cartSlice';
 import { toast } from 'react-toastify';
 import OptimizedImage from '../common/OptimizedImage';
+import { useCurrency } from '../../contexts/CurrencyContext';
 
 const ProductCard = ({ product }) => {
   const dispatch = useDispatch();
+  const { formatPrice } = useCurrency();
   const { isAuthenticated } = useSelector((state) => state.auth);
   const [isWishlisted, setIsWishlisted] = React.useState(false);
 
@@ -201,16 +203,14 @@ const ProductCard = ({ product }) => {
               <span className="text-sm text-charcoal-600">
                 ({product.reviewCount || 12} reviews)
               </span>
-            </div>
-
-            {/* Price */}
+            </div>            {/* Price */}
             <div className="flex items-center gap-3 mb-4">
               <span className="text-2xl font-bold text-forest-800">
-                ₹{isOnSale ? product.salePrice : product.price}
+                {formatPrice(isOnSale ? product.salePrice : product.price)}
               </span>
               {isOnSale && (
                 <span className="text-base text-charcoal-500 line-through">
-                  ₹{product.price}
+                  {formatPrice(product.price)}
                 </span>
               )}
             </div>

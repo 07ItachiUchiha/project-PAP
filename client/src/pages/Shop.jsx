@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo, useCallback } from 'react';
+import React, { useState, useEffect, useMemo, useCallback, Suspense, lazy, useRef } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 // eslint-disable-next-line no-unused-vars
 import { motion } from 'framer-motion';
@@ -11,19 +11,38 @@ import {
 } from 'lucide-react';
 
 import ProductCard from '../components/product/ProductCard';
-import ProductFilters from '../components/product/ProductFilters';
-import SearchBar from '../components/product/SearchBar';
 import LoadingSpinner from '../components/common/LoadingSpinner';
 import SkeletonLoader from '../components/common/SkeletonLoader';
-import AdvancedSearch from '../components/common/AdvancedSearch';
 import { fetchProducts } from '../store/slices/productSlice';
+
+// Lazy load non-critical components for better performance
+const ProductFilters = lazy(() => import('../components/product/ProductFilters'));
+const SearchBar = lazy(() => import('../components/product/SearchBar'));
+const AdvancedSearch = lazy(() => import('../components/common/AdvancedSearch'));
+
+// Debounce hook for performance optimization
+const useDebounce = (value, delay) => {
+  const [debouncedValue, setDebouncedValue] = useState(value);
+
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setDebouncedValue(value);
+    }, delay);
+
+    return () => {
+      clearTimeout(handler);
+    };
+  }, [value, delay]);
+
+  return debouncedValue;
+};
+
+// Memoize ProductCard to prevent unnecessary re-renders
+const MemoizedProductCard = React.memo(ProductCard);
 
 const Shop = () => {
   const dispatch = useDispatch();
-  const [searchParams, setSearchParams] = useSearchParams();
-  const { products, loading, error, totalPages, currentPage } = useSelector(state => state.products);
-
-  const [searchResults, setSearchResults] = useState(null);
+  const [searchParams, setSearchParams] = useSearchParams();  const { products, loading, error, totalPages, currentPage } = useSelector(state => state.products);
   
   const [filters, setFilters] = useState({
     category: searchParams.get('category') || '',
@@ -33,41 +52,48 @@ const Shop = () => {
   });
   const [showFilters, setShowFilters] = useState(false);
 
-  // Memoize the search parameters to prevent unnecessary re-renders
-  const searchParamsObj = useMemo(() => ({
-    page: searchParams.get('page') || '1',
-    category: searchParams.get('category') || '',
-    q: searchParams.get('q') || ''
-  }), [searchParams]);
+  // Debounce search term to prevent excessive API calls
+  const debouncedSearchTerm = useDebounce(filters.search, 500);
+  // Cache for API calls to prevent duplicate requests (using ref to avoid dependency issues)
+  const apiCacheRef = useRef(new Map());
 
-  // Memoize the API parameters
+  // Generate cache key for API params
+  const getCacheKey = useCallback((params) => {
+    return JSON.stringify(params);
+  }, []);  // Memoize the API parameters directly from current state
   const apiParams = useMemo(() => ({
-    page: parseInt(searchParamsObj.page, 10),
+    page: parseInt(searchParams.get('page') || '1', 10),
     category: filters.category,
     minPrice: filters.priceRange[0],
     maxPrice: filters.priceRange[1],
-    search: filters.search,
+    search: debouncedSearchTerm,
     sortBy: filters.sortBy
-  }), [searchParamsObj.page, filters.category, filters.priceRange, filters.search, filters.sortBy]);
-
-  // Fetch products only when necessary parameters change
+  }), [searchParams, filters.category, filters.priceRange, debouncedSearchTerm, filters.sortBy]);// Fetch products only when necessary parameters change
   useEffect(() => {
-    if (!searchResults) {
-      dispatch(fetchProducts(apiParams));
+    const cacheKey = getCacheKey(apiParams);
+    
+    // Check cache first
+    const cachedData = apiCacheRef.current.get(cacheKey);
+    if (cachedData) {
+      // Use cached data if available - Redux state will be updated by the thunk
+      return;
     }
-  }, [dispatch, apiParams, searchResults]);
+    
+    dispatch(fetchProducts(apiParams)).then((action) => {
+      if (action.meta.requestStatus === 'fulfilled') {
+        // Update cache on successful fetch
+        const cache = apiCacheRef.current;
+        // Limit cache size to prevent memory issues (keep last 20 entries)
+        if (cache.size >= 20) {
+          const firstKey = cache.keys().next().value;
+          cache.delete(firstKey);
+        }
+        cache.set(cacheKey, action.payload);
+      }
+    });  }, [dispatch, apiParams, getCacheKey]);
 
-  // Update filters when URL parameters change
-  useEffect(() => {
-    setFilters(prev => ({
-      ...prev,
-      category: searchParamsObj.category,
-      search: searchParamsObj.q
-    }));
-  }, [searchParamsObj.category, searchParamsObj.q]);
   const handleFilterChange = useCallback((newFilters) => {
     setFilters(prev => ({ ...prev, ...newFilters }));
-    setSearchResults(null); // Clear search results when filters change
     
     // Update URL parameters without causing immediate re-render
     const newSearchParams = new URLSearchParams(searchParams);
@@ -89,28 +115,29 @@ const Shop = () => {
       }
     }
     
-    setSearchParams(newSearchParams);
-  }, [searchParams, setSearchParams]);
+    setSearchParams(newSearchParams);  }, [searchParams, setSearchParams]);
 
   // Advanced search handler with debouncing
   const handleSearch = useCallback((query) => {
     setFilters(prev => ({ ...prev, search: query }));
-    setSearchResults(null);
     
-    const newSearchParams = new URLSearchParams(searchParams);
-    if (query) {
-      newSearchParams.set('q', query);
-    } else {
-      newSearchParams.delete('q');
-    }
-    newSearchParams.set('page', '1');
-    setSearchParams(newSearchParams);
-  }, [searchParams, setSearchParams]);
+    // Debounce URL updates
+    const timeoutId = setTimeout(() => {
+      const newSearchParams = new URLSearchParams(searchParams);
+      if (query) {
+        newSearchParams.set('q', query);
+      } else {
+        newSearchParams.delete('q');
+      }
+      newSearchParams.set('page', '1');
+      setSearchParams(newSearchParams);
+    }, 500);
 
+    return () => clearTimeout(timeoutId);
+  }, [searchParams, setSearchParams]);
   // Advanced filter handler
   const handleAdvancedFilter = useCallback((advancedFilters) => {
     setFilters(prev => ({ ...prev, ...advancedFilters }));
-    setSearchResults(null);
     
     const newSearchParams = new URLSearchParams(searchParams);
     if (advancedFilters.category) {
@@ -251,11 +278,13 @@ const Shop = () => {
                   <Funnel className="h-6 w-6 text-sage-600 mr-3" />
                   Refine Your Search
                 </h3>
-                <ProductFilters 
-                  filters={filters}
-                  onFilterChange={handleFilterChange}
-                  categories={categories}
-                />
+                <Suspense fallback={<div>Loading filters...</div>}>
+                  <ProductFilters 
+                    filters={filters}
+                    onFilterChange={handleFilterChange}
+                    categories={categories}
+                  />
+                </Suspense>
               </div>
             </div>
           </motion.div>
@@ -285,11 +314,13 @@ const Shop = () => {
                     <Funnel className="h-5 w-5 text-sage-600 mr-2" />
                     Filters
                   </h3>
-                  <ProductFilters 
-                    filters={filters}
-                    onFilterChange={handleFilterChange}
-                    categories={categories}
-                  />
+                  <Suspense fallback={<div>Loading filters...</div>}>
+                    <ProductFilters 
+                      filters={filters}
+                      onFilterChange={handleFilterChange}
+                      categories={categories}
+                    />
+                  </Suspense>
                 </div>
               </motion.div>
             )}
@@ -359,7 +390,7 @@ const Shop = () => {
                       className="group"
                     >
                       <div className="card-nature group-hover:shadow-nature transition-all duration-500">
-                        <ProductCard product={product} />
+                        <MemoizedProductCard product={product} />
                       </div>
                     </motion.div>
                   )) : (

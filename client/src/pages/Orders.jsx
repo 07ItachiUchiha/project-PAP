@@ -6,9 +6,11 @@ import { motion } from 'framer-motion';
 import { ShoppingBag, Clock, CheckCircle, XCircle } from 'lucide-react';
 import { fetchUserOrders } from '../store/slices/orderSlice';
 import LoadingSpinner from '../components/common/LoadingSpinner';
+import { useCurrency } from '../contexts/CurrencyContext';
 
 const Orders = () => {
   const dispatch = useDispatch();
+  const { formatPrice } = useCurrency();
   const { orders, isLoading } = useSelector((state) => state.orders);
 
   useEffect(() => {
@@ -96,7 +98,9 @@ const Orders = () => {
                           <span className="ml-2 capitalize">{order.status}</span>
                         </span>
                         <div className="text-right">
-                          <p className="font-semibold text-gray-900">₹{order.totalAmount}</p>
+                          <p className="font-semibold text-gray-900">
+                            {formatPrice(order.totalAmount)}
+                          </p>
                           <p className="text-sm text-gray-600">{order.items.length} items</p>
                         </div>
                       </div>
@@ -134,7 +138,7 @@ const Orders = () => {
                               />
                             ) : (
                               <div className="w-full h-full flex items-center justify-center">
-                                <ShoppingBagIcon className="h-6 w-6 text-gray-400" />
+                                <ShoppingBag className="h-6 w-6 text-gray-400" />
                               </div>
                             )}
                           </div>
@@ -142,7 +146,9 @@ const Orders = () => {
                             <h4 className="font-medium text-gray-900">{item.product?.name || 'Product'}</h4>
                             <p className="text-sm text-gray-600">Quantity: {item.quantity}</p>
                           </div>                          <div className="text-right">
-                            <p className="font-medium text-gray-900">₹{item.price}</p>
+                            <p className="font-medium text-gray-900">
+                              {formatPrice(item.price)}
+                            </p>
                           </div>
                         </div>
                       ))}
@@ -167,7 +173,7 @@ const Orders = () => {
               animate={{ opacity: 1 }}
               className="text-center py-12"
             >
-              <ShoppingBagIcon className="mx-auto h-16 w-16 text-gray-300" />
+              <ShoppingBag className="mx-auto h-16 w-16 text-gray-300" />
               <h2 className="mt-4 text-xl font-semibold text-gray-900">No orders yet</h2>
               <p className="mt-2 text-gray-600">
                 Start shopping to see your orders here!

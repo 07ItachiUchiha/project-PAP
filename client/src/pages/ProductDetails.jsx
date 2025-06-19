@@ -13,11 +13,13 @@ import ReviewSummary from '../components/product/ReviewSummary';
 import ReviewCard from '../components/product/ReviewCard';
 import ReviewForm from '../components/product/ReviewForm';
 import { getProductReviews, getReviewStats, canUserReview } from '../api/reviewAPI';
+import { useCurrency } from '../contexts/CurrencyContext';
 
 const ProductDetails = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const dispatch = useDispatch();
+  const { formatPrice } = useCurrency();
   const isMounted = useRef(false);
     // Component state
   const [product, setProduct] = useState(null);
@@ -350,12 +352,11 @@ const ProductDetails = () => {
                 </div>
                 <h1 className="text-3xl font-bold text-gray-900">{product.name}</h1>
               </div>
-              
-              {/* Price */}
+                {/* Price */}
               <div className="flex items-center mb-6">
-                <span className="text-3xl font-bold text-gray-900">₹{product.price}</span>
+                <span className="text-3xl font-bold text-gray-900">{formatPrice(product.price)}</span>
                 {product.originalPrice && product.originalPrice > product.price && (
-                  <span className="ml-3 text-lg text-gray-500 line-through">₹{product.originalPrice}</span>
+                  <span className="ml-3 text-lg text-gray-500 line-through">{formatPrice(product.originalPrice)}</span>
                 )}
                 {product.originalPrice && product.originalPrice > product.price && (
                   <span className="ml-3 bg-red-100 text-red-800 px-2 py-1 rounded text-xs font-medium">
